@@ -5,56 +5,59 @@ public class SQLManager {
 	public static void onCreate() {
 
 		//Settings - Databases for several settings of a guild
-		LiteSQL.newTable("settings", "id INTEGER", 
-				"guildid INTEGER, deletemessage INTEGER");
+		MySQL.newTable("Guilds", "ID INTEGER", 
+				"guild_ID BIGINT, joined BOOLEAN");
+		
+		MySQL.newTable("Settings", "ID INTEGER", 
+				"guild_ID BIGINT, delete_Message BOOLEAN");
 
-		LiteSQL.newTable("musicsettings", "id INTEGER", 
-				"guildid INTEGER, nowplaying INTEGER");
+		MySQL.newTable("Music_Settings", "ID INTEGER", 
+				"guild_ID BIGINT, now_playing BOOLEAN");
 
 
 		//Roles - Databases to save the Command Roles
-		LiteSQL.newTable("adminrole", "id INTEGER", 
-				"guildid INTEGER, roleid INTEGER");
+		//MySQL.newTable("Admin_Role", "ID INTEGER", 
+		//		"guild_ID BIGINT, role_ID BIGINT");
 
-		LiteSQL.newTable("modrole", "id INTEGER", 
-				"guildid INTEGER, roleid INTEGER");
+		//MySQL.newTable("Mod_Role", "ID INTEGER", 
+		//		"guild_ID BIGINT, role_ID BIGINT");
 
-		LiteSQL.newTable("djrole", "id INTEGER", 
-				"guildid INTEGER, roleid INTEGER");
+		//MySQL.newTable("DJ_Role", "ID INTEGER", 
+		//		"guild_ID BIGINT, role_ID BIGINT");
 
-		LiteSQL.newTable("bdosettingsrole", "id INTEGER", 
-				"guildid INTEGER, roleid INTEGER");
+		//MySQL.newTable("BDO_Settings_Role", "ID INTEGER", 
+		//		"guild_ID BIGINT, role_ID BIGINT");
 
-		LiteSQL.newTable("bdonoterole", "id INTEGER", 
-				"guildid INTEGER, roleid INTEGER");
+		//MySQL.newTable("BDO_Note_Role", "ID INTEGER", 
+		//		"guild_ID BIGINT, role_ID BIGINT");
 
-		LiteSQL.newTable("regularrole", "id INTEGER", 
-				"guildid INTEGER, roleid INTEGER");
+		//MySQL.newTable("Regular_Role", "ID INTEGER", 
+		//		"guild_ID BIGINT, role_ID BIGINT");
 
 
-		//ModCommands - Databases for moderator commands
-		LiteSQL.newTable("reactroles", "id INTEGER", 
-				"guildid INTEGER, channelid INTEGER, messageid INTEGER, emote VARCHAR, roleid INTEGER");
+		//ModCommands - Databases for moderator commands		
+		MySQL.newTable("React_Roles", "ID INTEGER", 
+				"guild_ID BIGINT, channel_ID BIGINT, message_ID BIGINT, emote TEXT, role_ID BIGINT");
 
-		LiteSQL.newTable("statchannels", "id INTEGER", 
-				"guildid INTEGER, categoryid INTEGER");
+		MySQL.newTable("Stats_Channels", "ID INTEGER", 
+				"guild_ID BIGINT, category_ID BIGINT");
 
-		LiteSQL.newTable("voicechannelhubs", "id INTEGER", 
-				"guildid INTEGER, categoryid INTEGER, channelid INTEGER");
+		MySQL.newTable("Voice_Channel_Hubs", "ID INTEGER", 
+				"guild_ID BIGINT, category_ID BIGINT, channel_ID BIGINT");
 
 
 		//Music - Databases for music
 		//Saves the channel, where music notifications are sent to
-		LiteSQL.newTable("musicchannel", "id INTEGER", 
-				"guildid INTEGER, channelid INTEGER");
+		MySQL.newTable("Music_Channel", "ID INTEGER", 
+				"guild_ID BIGINT, channel_ID BIGINT");
 		//Saves all the reactions and its function
-		LiteSQL.newTable("dashboardreactions", "id INTEGER", 
-				"guildid INTEGER, channelid INTEGER, messageid INTEGER, emote TEXT, action TEXT");
+		MySQL.newTable("Dashboard_Reactions", "ID INTEGER", 
+				"guild_ID BIGINT, channel_ID BIGINT, message_ID BIGINT, emote TEXT, action TEXT");
 		//Saves the Channel for the Dashboard
-		LiteSQL.newTable("npchannel", "id INTEGER", 
-				"guildid INTEGER, channelid INTEGER");
+		MySQL.newTable("Dashboard", "ID INTEGER", 
+				"guild_ID BIGINT, channel_ID BIGINT");
 		//Saves the Messages for the Dashboard
-		LiteSQL.newTable("messages", "id INTEGER", 
-				"guildid INTEGER, channelid INTEGER, msg1 INTEGER, msg2 INTEGER, msg3 INTEGER");
+		MySQL.newTable("Messages", "ID INTEGER", 
+				"guild_ID BIGINT, channel_ID BIGINT, message_ID_1 BIGINT, message_ID_2 BIGINT, message_ID_3 BIGINT");
 	}
 }

@@ -9,7 +9,7 @@ import java.util.List;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import de.dragonbot.commands.random.SendAsEmbed;
-import de.dragonbot.manage.LiteSQL;
+import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -34,9 +34,9 @@ public class Queue {
 		this.isLoop = false;
 		this.isSingleLoop = false;
 		this.guild = controller.getGuild();
-		this.set = LiteSQL.getEntrys("channelid",
-				"npchannel",
-				"guildid = " + guild.getIdLong());
+		this.set = MySQL.getEntrys("channel_ID",
+				"Dashboard",
+				"guild_ID = " + guild.getIdLong());
 	}
 
 	public boolean isNext() {
@@ -108,7 +108,7 @@ public class Queue {
 
 			try {
 				if(set.next()) {
-					TextChannel channel = guild.getTextChannelById(set.getLong("channelid"));
+					TextChannel channel = guild.getTextChannelById(set.getLong("channel_ID"));
 
 					MusicDashboard.updateQueue(channel, controller, controller.getPlayer());
 				}
@@ -137,7 +137,7 @@ public class Queue {
 
 			try {
 				if(set.next()) {
-					TextChannel channel = guild.getTextChannelById(set.getLong("channelid"));
+					TextChannel channel = guild.getTextChannelById(set.getLong("channel_ID"));
 
 					MusicDashboard.updateQueue(channel, controller, controller.getPlayer());
 				}
@@ -161,7 +161,7 @@ public class Queue {
 
 			try {
 				if(set.next()) {
-					TextChannel channel = guild.getTextChannelById(set.getLong("channelid"));
+					TextChannel channel = guild.getTextChannelById(set.getLong("channel_ID"));
 
 					MusicDashboard.updateQueue(channel, controller, controller.getPlayer());
 				}

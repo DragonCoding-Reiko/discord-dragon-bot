@@ -3,7 +3,7 @@ package de.dragonbot.listener.reactrole;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import de.dragonbot.manage.LiteSQL;
+import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -32,13 +32,13 @@ public class ReactRoleRemoveListener extends ListenerAdapter{
 			long channelid = channel.getIdLong();
 
 
-			ResultSet set = LiteSQL.getEntrys("roleid", 
-					"reactroles", 
-					"guildid = " + guildid + " AND channelid = " + channelid + " AND messageid = " + messageID + " AND emote = '" + emote + "'");
+			ResultSet set = MySQL.getEntrys("role_ID", 
+					"React_Roles", 
+					"guild_ID = " + guildid + " AND channel_ID = " + channelid + " AND message_ID = " + messageID + " AND emote = '" + emote + "'");
 
 			try {
 				if(set.next()) {
-					long roleid = set.getLong("roleid");
+					long roleid = set.getLong("role_ID");
 
 					if(type.equalsIgnoreCase("AddEvent")) {
 						guild.addRoleToMember(member, guild.getRoleById(roleid)).queue();

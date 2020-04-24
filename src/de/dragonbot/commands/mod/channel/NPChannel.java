@@ -5,7 +5,8 @@ import java.sql.SQLException;
 import java.util.EnumSet;
 
 import de.dragonbot.commands.ServerCommand;
-import de.dragonbot.manage.LiteSQL;
+import de.dragonbot.manage.MySQL;
+import de.dragonbot.music.MusicDashboard;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -23,9 +24,9 @@ public class NPChannel implements ServerCommand{
 		Guild guild = channel.getGuild();
 		String[] args = message.getContentDisplay().substring(subString).split(" ");
 
-		ResultSet set = LiteSQL.getEntrys("guildid, channelid", 
-				"npchannel", 
-				"guildid = " + guild.getIdLong());
+		ResultSet set = MySQL.getEntrys("guild_ID, channel_ID", 
+				"Dashboard", 
+				"guild_ID = " + guild.getIdLong());
 
 		try {
 			if(!set.next()) {
@@ -35,12 +36,12 @@ public class NPChannel implements ServerCommand{
 
 					createdChannel = guild.createTextChannel(channelName).complete();
 
-					LiteSQL.updateEntry("musicsettings", 
-							"nowplaying = " + true, 
-							"guildid = " + guild.getIdLong());
+					MySQL.updateEntry("Music_Settings", 
+							"now_playing = " + true, 
+							"guild_ID = " + guild.getIdLong());
 
-					LiteSQL.newEntry("npchannel", 
-							"guildid, channelid", 
+					MySQL.newEntry("Dashboard", 
+							"guild_ID, channel_ID", 
 							guild.getIdLong() + ", " + createdChannel.getIdLong());
 
 					PermissionOverride override = new PermissionOverrideActionImpl(guild.getJDA(), createdChannel, createdChannel.getGuild().getPublicRole()).complete();
@@ -48,17 +49,19 @@ public class NPChannel implements ServerCommand{
 					createdChannel.getManager()
 					.putPermissionOverride(override.getPermissionHolder(), null, EnumSet.of(Permission.MESSAGE_WRITE, Permission.MESSAGE_TTS, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION))
 					.putPermissionOverride(override2.getPermissionHolder(),EnumSet.of(Permission.MESSAGE_WRITE, Permission.MESSAGE_TTS, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION) , null).queue();
+					
+					MusicDashboard.onAFK(createdChannel);
 				}
 			}
 			else if(args[1].equalsIgnoreCase("delete")) {
-				TextChannel ch = guild.getTextChannelById(set.getLong("channelid"));
+				TextChannel ch = guild.getTextChannelById(set.getLong("channel_ID"));
 
-				LiteSQL.updateEntry("musicsettings", 
-						"nowplaying = " + false, 
-						"guildid = " + guild.getIdLong());
+				MySQL.updateEntry("Music_Settings", 
+						"now_playing = " + false, 
+						"guild_ID = " + guild.getIdLong());
 
-				LiteSQL.deleteEntry("npchannel", 
-						"guildid = " + guild.getIdLong());
+				MySQL.deleteEntry("Dashboard", 
+						"guild_ID = " + guild.getIdLong());
 
 				ch.delete().complete();
 			}

@@ -12,7 +12,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 
 import de.dragonbot.DragonBot;
-import de.dragonbot.manage.LiteSQL;
+import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -28,23 +28,23 @@ public class TrackScheduler extends AudioEventAdapter{
 	public void onPlayerPause(AudioPlayer player) {
 		long guildid = DragonBot.INSTANCE.playerManager.getGuildByPlayerHash(player.hashCode());
 
-		ResultSet isNP = LiteSQL.getEntrys("nowplaying", "musicsettings", 
-				"guildid = " + guildid);
+		ResultSet isNP = MySQL.getEntrys("now_playing", "Music_Settings", 
+				"guild_ID = " + guildid);
 
 		try {
 			if(isNP.next()) {
-				if(!isNP.getBoolean("nowplaying")) {
+				if(!isNP.getBoolean("now_playing")) {
 
 					EmbedBuilder builder = new EmbedBuilder();
 					builder.setDescription("Musik pausiert.");
 
-					ResultSet set = LiteSQL.getEntrys("*", 
-							"musicchannel", 
-							"guildid = " + guildid);
+					ResultSet set = MySQL.getEntrys("*", 
+							"Music_Channel", 
+							"guild_ID = " + guildid);
 
 					try {
 						if(set.next()) {
-							long channelid = set.getLong("channelid");
+							long channelid = set.getLong("channel_ID");
 							Guild guild;
 							if((guild = DragonBot.INSTANCE.shardMan.getGuildById(guildid)) != null) {
 								TextChannel channel;
@@ -65,23 +65,23 @@ public class TrackScheduler extends AudioEventAdapter{
 	public void onPlayerResume(AudioPlayer player) {
 		long guildid = DragonBot.INSTANCE.playerManager.getGuildByPlayerHash(player.hashCode());
 
-		ResultSet isNP = LiteSQL.getEntrys("nowplaying", "musicsettings", 
-				"guildid = " + guildid);
+		ResultSet isNP = MySQL.getEntrys("now_playing", "Music_Settings", 
+				"guild_ID = " + guildid);
 
 		try {
 			if(isNP.next()) {
-				if(!isNP.getBoolean("nowplaying")) {
+				if(!isNP.getBoolean("now_playing")) {
 
 					EmbedBuilder builder = new EmbedBuilder();
 					builder.setDescription("Musik läuft weiter.");
 
-					ResultSet set = LiteSQL.getEntrys("*", 
-							"musicchannel", 
-							"guildid = " + guildid);
+					ResultSet set = MySQL.getEntrys("*", 
+							"Music_Channel", 
+							"guild_ID = " + guildid);
 
 					try {
 						if(set.next()) {
-							long channelid = set.getLong("channelid");
+							long channelid = set.getLong("channel_ID");
 							Guild guild;
 							if((guild = DragonBot.INSTANCE.shardMan.getGuildById(guildid)) != null) {
 								TextChannel channel;
@@ -105,12 +105,12 @@ public class TrackScheduler extends AudioEventAdapter{
 	public void onTrackStart(AudioPlayer player, AudioTrack track) {
 		long guildid = DragonBot.INSTANCE.playerManager.getGuildByPlayerHash(player.hashCode());
 
-		ResultSet isNP = LiteSQL.getEntrys("nowplaying", "musicsettings", 
-				"guildid = " + guildid);
+		ResultSet isNP = MySQL.getEntrys("now_playing", "Music_Settings", 
+				"guild_ID = " + guildid);
 
 		try {
 			if(isNP.next()) {
-				if(!isNP.getBoolean("nowplaying")) {
+				if(!isNP.getBoolean("now_playing")) {
 					EmbedBuilder builder = new EmbedBuilder();
 					builder.setColor(Color.decode("#00e640"));
 					AudioTrackInfo info = track.getInfo();
@@ -162,13 +162,13 @@ public class TrackScheduler extends AudioEventAdapter{
 		AudioManager manager = guild.getAudioManager();
 		player.stopTrack();
 		queue.setFirst(true);
-		ResultSet set = LiteSQL.getEntrys("channelid",
-				"npchannel",
-				"guildid = " + guild.getIdLong());
+		ResultSet set = MySQL.getEntrys("channel_ID",
+				"Dashboard",
+				"guild_ID = " + guild.getIdLong());
 
 		try {
 			if(set.next()) {
-				long channelID = set.getLong("channelid");
+				long channelID = set.getLong("channel_ID");
 				TextChannel channel = guild.getTextChannelById(channelID);
 
 				MusicDashboard.onAFK(channel);

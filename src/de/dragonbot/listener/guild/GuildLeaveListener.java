@@ -1,6 +1,6 @@
 package de.dragonbot.listener.guild;
 
-import de.dragonbot.manage.LiteSQL;
+import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -12,23 +12,26 @@ public class GuildLeaveListener extends ListenerAdapter{
 	}
 
 	private void removeGuild(Guild guild) {
-		LiteSQL.deleteEntry("settings", "guildid = " + guild.getIdLong());
-		LiteSQL.deleteEntry("musicsettings", "guildid = " + guild.getIdLong());
+		MySQL.updateEntry("Guilds", "joined = " + false, "guild_ID = " + guild.getIdLong());
+		
+		MySQL.deleteEntry("Settings", "guild_ID = " + guild.getIdLong());
+		MySQL.deleteEntry("Music_Settings", "guild_ID = " + guild.getIdLong());
 
-		LiteSQL.deleteEntry("adminrole", "guildid = " + guild.getIdLong());
-		LiteSQL.deleteEntry("modrole", "guildid = " + guild.getIdLong());
-		LiteSQL.deleteEntry("djrole", "guildid = " + guild.getIdLong());
-		LiteSQL.deleteEntry("bdosettingsrole", "guildid = " + guild.getIdLong());
-		LiteSQL.deleteEntry("bdonoterole", "guildid = " + guild.getIdLong());
-		LiteSQL.deleteEntry("regular", "guildid = " + guild.getIdLong());
+		//MySQL.deleteEntry("Admin_Role", "guild_ID = " + guild.getIdLong());
+		//MySQL.deleteEntry("Mod_Role", "guild_ID = " + guild.getIdLong());
+		//MySQL.deleteEntry("DJ_Role", "guild_ID = " + guild.getIdLong());
+		//MySQL.deleteEntry("BDO_Settings_Role", "guild_ID = " + guild.getIdLong());
+		//MySQL.deleteEntry("BDO_Note_Role", "guild_ID = " + guild.getIdLong());
+		//MySQL.deleteEntry("Regular_Role", "guild_ID = " + guild.getIdLong());
 
-		LiteSQL.deleteEntry("reactroles", "guildid = " + guild.getIdLong());
-		LiteSQL.deleteEntry("statchannels", "guildid = " + guild.getIdLong());
-		LiteSQL.deleteEntry("voicechannelhubs", "guildid = " + guild.getIdLong());
+		MySQL.deleteEntry("React_Roles", "guild_ID = " + guild.getIdLong());
+		MySQL.deleteEntry("Stats_Channels", "guild_ID = " + guild.getIdLong());
+		MySQL.deleteEntry("Voice_Channel_Hubs", "guild_ID = " + guild.getIdLong());
 
-		LiteSQL.deleteEntry("musicchannel", "guildid = " + guild.getIdLong());
-		LiteSQL.deleteEntry("nowplayingchannel", "guildid = " + guild.getIdLong());
-		LiteSQL.deleteEntry("npchannel", "guildid = " + guild.getIdLong());
+		MySQL.deleteEntry("Music_Channel", "guild_ID = " + guild.getIdLong());
+		MySQL.deleteEntry("Dashboard_Reactions", "guild_ID = " + guild.getIdLong());
+		MySQL.deleteEntry("Dashboard", "guild_ID = " + guild.getIdLong());
+		MySQL.deleteEntry("Messages", "guild_ID = " + guild.getIdLong());
 	}
 	
 }

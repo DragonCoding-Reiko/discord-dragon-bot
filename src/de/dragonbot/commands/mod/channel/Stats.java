@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.ServerCommand;
-import de.dragonbot.manage.LiteSQL;
+import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
@@ -34,9 +34,9 @@ public class Stats implements ServerCommand{
 		if(m.hasPermission(Permission.ADMINISTRATOR)) {
 			String[] args = message.getContentDisplay().substring(subString).split(" ");
 			Guild guild = channel.getGuild();
-			ResultSet set = LiteSQL.getEntrys("*", 
-					"statchannels", 
-					"guildid = " + guild.getIdLong());
+			ResultSet set = MySQL.getEntrys("*", 
+					"Stats_Channels", 
+					"guild_ID = " + guild.getIdLong());
 
 			try {
 				if(!set.next()) {
@@ -48,21 +48,21 @@ public class Stats implements ServerCommand{
 
 					category.getManager().putPermissionOverride(override.getRole(), null, EnumSet.of(Permission.VOICE_CONNECT)).queue();
 
-					LiteSQL.newEntry("statchannels", 
-							"guildid, categoryid", 
+					MySQL.newEntry("Stats_Channels", 
+							"guild_ID, category_ID", 
 							guild.getIdLong() + ", " + category.getIdLong());
 
 					fillCategory(category);
 				}
 				else {
-					long categoryid = set.getLong("categoryid");
+					long categoryid = set.getLong("category_ID");
 					channel.sendMessage("Kategorie geupdated.").complete().delete().queueAfter(5, TimeUnit.SECONDS);
 					Category cat = guild.getCategoryById(categoryid);
 
 					if(args.length == 2) {
 						if(args[1].equalsIgnoreCase("delete")) {
-							LiteSQL.deleteEntry("statchannels", 
-									"guildid = " + guild.getIdLong());
+							MySQL.deleteEntry("Stats_Channels", 
+									"guild_ID = " + guild.getIdLong());
 
 							cat.getChannels().forEach(chan -> {
 								chan.delete().complete();
@@ -152,13 +152,13 @@ public class Stats implements ServerCommand{
 
 	public static void checkStats() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = LiteSQL.getEntrys("categoryid", 
-					"statchannels", 
-					"guildid = " + guild.getIdLong());
+			ResultSet set = MySQL.getEntrys("category_ID", 
+					"Stats_Channels", 
+					"guild_ID = " + guild.getIdLong());
 
 			try {
 				if(set.next()) {
-					long catid = set.getLong("categoryid");
+					long catid = set.getLong("category_ID");
 					Stats.updateCategory(guild.getCategoryById(catid));
 				}
 			} catch (SQLException e) {
@@ -169,13 +169,13 @@ public class Stats implements ServerCommand{
 
 	public static void onStartUP() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = LiteSQL.getEntrys("categoryid",
-					"statchannels",
-					"guildid = " + guild.getIdLong());
+			ResultSet set = MySQL.getEntrys("category_ID",
+					"Stats_Channels",
+					"guild_ID = " + guild.getIdLong());
 
 			try {
 				if(set.next()) {
-					long catid = set.getLong("categoryid");
+					long catid = set.getLong("category_ID");
 					Category cat = guild.getCategoryById(catid);
 
 					cat.getChannels().forEach(chan -> {
@@ -192,13 +192,13 @@ public class Stats implements ServerCommand{
 
 	public static void onShutdown() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = LiteSQL.getEntrys("categoryid", 
-					"statchannels", 
-					"guildid = " + guild.getIdLong());
+			ResultSet set = MySQL.getEntrys("category_ID", 
+					"Stats_Channels", 
+					"guild_ID = " + guild.getIdLong());
 
 			try {
 				if(set.next()) {
-					long catid = set.getLong("categoryid");
+					long catid = set.getLong("category_ID");
 					Category cat = guild.getCategoryById(catid);
 
 					cat.getChannels().forEach(chan -> {

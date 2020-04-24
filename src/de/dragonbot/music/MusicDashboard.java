@@ -10,7 +10,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.random.SendAsEmbed;
-import de.dragonbot.manage.LiteSQL;
+import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -20,13 +20,13 @@ public class MusicDashboard {
 
 	public static void onStartUp() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = LiteSQL.getEntrys("channelid",
-					"npchannel",
-					"guildid = " + guild.getIdLong());
+			ResultSet set = MySQL.getEntrys("channel_ID",
+					"Dashboard",
+					"guild_ID = " + guild.getIdLong());
 
 			try {
 				if(set.next()) {
-					long channelID = set.getLong("channelid");
+					long channelID = set.getLong("channel_ID");
 					TextChannel channel = guild.getTextChannelById(channelID);
 
 					onAFK(channel);
@@ -39,12 +39,12 @@ public class MusicDashboard {
 
 	public static void onShutdown() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = LiteSQL.getEntrys("channelid",
-					"npchannel",
-					"guildid = " + guild.getIdLong());
+			ResultSet set = MySQL.getEntrys("channel_ID",
+					"Dashboard",
+					"guild_ID = " + guild.getIdLong());
 			try {
 				if(set.next()) {
-					long channelID = set.getLong("channelid");
+					long channelID = set.getLong("channel_ID");
 					TextChannel channel = guild.getTextChannelById(channelID);
 
 					List<Message> messages = new ArrayList<>();
@@ -73,8 +73,8 @@ public class MusicDashboard {
 
 		channel.purgeMessages(messages);
 
-		LiteSQL.deleteEntry("messages", 
-				"guildid = " + channel.getGuild().getIdLong() + " AND channelid = " + channel.getIdLong());
+		MySQL.deleteEntry("Messages", 
+				"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong());
 
 		SendAsEmbed.sendEmbed(channel, "✅ BOT ONLINE - No music playing. \n" 
 				+ "Use #d play to start a song.");
@@ -82,9 +82,9 @@ public class MusicDashboard {
 
 	public static void onStartPlaying(Guild guild) {
 
-			ResultSet set = LiteSQL.getEntrys("channelid",
-					"npchannel",
-					"guildid = " + guild.getIdLong());
+			ResultSet set = MySQL.getEntrys("channel_ID",
+					"Dashboard",
+					"guild_ID = " + guild.getIdLong());
 
 			Long guildid = guild.getIdLong();
 			MusicController controller = DragonBot.INSTANCE.playerManager.getController(guildid);
@@ -94,7 +94,7 @@ public class MusicDashboard {
 				queue.setFirst(false);
 				try {
 					if(set.next()) {
-						TextChannel channel = guild.getTextChannelById(set.getLong("channelid"));
+						TextChannel channel = guild.getTextChannelById(set.getLong("channel_ID"));
 						AudioPlayer player = controller.getPlayer();
 						List<Message> messages = new ArrayList<>();
 
@@ -108,8 +108,8 @@ public class MusicDashboard {
 						Message msg2 = sendNowPlaying(channel, player, queue);
 						Message msg3 = sendVolume(channel, player);
 
-						LiteSQL.newEntry("messages", "guildid, channelid, msg1, msg2, msg3",
-								guildid + ", " + set.getLong("channelid") + ", " + msg1.getIdLong() + ", " + msg2.getIdLong() + ", " + msg3.getIdLong());
+						MySQL.newEntry("Messages", "guild_ID, channel_ID, message_ID_1, message_ID_2, message_ID_3",
+								guildid + ", " + set.getLong("channel_ID") + ", " + msg1.getIdLong() + ", " + msg2.getIdLong() + ", " + msg3.getIdLong());
 					}
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -124,14 +124,14 @@ public class MusicDashboard {
 			MusicController controller = DragonBot.INSTANCE.playerManager.getController(guildid);
 			AudioPlayer player = controller.getPlayer();
 			if(player.getPlayingTrack() != null) {
-				ResultSet set = LiteSQL.getEntrys("channelid",
-						"npchannel",
-						"guildid = " + guild.getIdLong());
+				ResultSet set = MySQL.getEntrys("channel_ID",
+						"Dashboard",
+						"guild_ID = " + guild.getIdLong());
 
 				try {
 					if(set.next()) {
 
-						TextChannel channel = guild.getTextChannelById(set.getLong("channelid"));
+						TextChannel channel = guild.getTextChannelById(set.getLong("channel_ID"));
 
 						Queue queue = controller.getQueue();
 
@@ -267,12 +267,12 @@ public class MusicDashboard {
 			counter++;
 		}
 
-		ResultSet set = LiteSQL.getEntrys("msg1", "messages", 
-				"guildid = " + channel.getGuild().getIdLong() + " AND channelid = " + channel.getIdLong());
+		ResultSet set = MySQL.getEntrys("message_ID_1", "Messages", 
+				"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong());
 
 		try {
 			if(set.next()) {
-				channel.editMessageById(set.getLong("msg1"), queueMsg.build()).complete();
+				channel.editMessageById(set.getLong("message_ID_1"), queueMsg.build()).complete();
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -316,12 +316,12 @@ public class MusicDashboard {
 						+ "**__Loop:__** " + (isSingleLoop ? "Single Song" : (isLoop ? "All" : "No Loop")));
 		playingMsg.setFooter("---------------------------------------------------------------------------------------------------------------");
 
-		ResultSet set = LiteSQL.getEntrys("msg2", "messages", 
-				"guildid = " + channel.getGuild().getIdLong() + " AND channelid = " + channel.getIdLong());
+		ResultSet set = MySQL.getEntrys("message_ID_2", "Messages", 
+				"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong());
 
 		try {
 			if(set.next()) {
-				channel.editMessageById(set.getLong("msg2"), playingMsg.build()).queue();
+				channel.editMessageById(set.getLong("message_ID_2"), playingMsg.build()).queue();
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -337,12 +337,12 @@ public class MusicDashboard {
 		volumeMsg.setDescription("" + volume);
 		volumeMsg.setFooter("---------------------------------------------------------------------------------------------------------------");
 
-		ResultSet set = LiteSQL.getEntrys("msg3", "messages", 
-				"guildid = " + channel.getGuild().getIdLong() + " AND channelid = " + channel.getIdLong());
+		ResultSet set = MySQL.getEntrys("message_ID_3", "Messages", 
+				"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong());
 
 		try {
 			if(set.next()) {
-				channel.editMessageById(set.getLong("msg3"), volumeMsg.build()).queue();
+				channel.editMessageById(set.getLong("message_ID_3"), volumeMsg.build()).queue();
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

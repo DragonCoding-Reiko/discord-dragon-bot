@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import de.dragonbot.commands.ServerCommand;
-import de.dragonbot.manage.LiteSQL;
+import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -38,8 +38,8 @@ public class CreateReactRole implements ServerCommand{
 
 						tc.addReactionById(messageID, emote).queue();
 
-						LiteSQL.newEntry("reactroles", 
-								"guildid, channelid, messageid, emote, roleid", 
+						MySQL.newEntry("React_Roles", 
+								"guild_ID, channel_ID, message_ID, emote, role_ID", 
 								channel.getGuild().getIdLong() + ", " + tc.getIdLong() + ", " + messageID + ", '" + emote.getId() + "', " + role.getIdLong());
 					}
 					else {
@@ -47,8 +47,8 @@ public class CreateReactRole implements ServerCommand{
 
 						tc.addReactionById(messageID, emote).queue();
 
-						LiteSQL.newEntry("reactroles", 
-								"guildid, channelid, messageid, emote, roleid", 
+						MySQL.newEntry("React_Roles", 
+								"guild_ID, channel_ID, message_ID, emote, role_ID", 
 								channel.getGuild().getIdLong() + ", " + tc.getIdLong() + ", " + messageID + ", '" + emote + "', " + role.getIdLong());
 					}
 				}
@@ -74,23 +74,23 @@ public class CreateReactRole implements ServerCommand{
 
 							tc.removeReactionById(messageID, emote).queue();
 
-							LiteSQL.deleteEntry("reactroles", 
-									"guildid = " + channel.getGuild().getIdLong() + " AND channelid = " + tc.getIdLong() + " AND messageid = " + messageID + " AND emote = '" + emote.getId() + "'");
+							MySQL.deleteEntry("React_Roles", 
+									"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + tc.getIdLong() + " AND message_ID = " + messageID + " AND emote = '" + emote.getId() + "'");
 						}
 						else {
 							String emote = args[4];
 
 							tc.removeReactionById(messageID, emote).queue();
 
-							LiteSQL.deleteEntry("reactroles", 
-									"guildid = " + channel.getGuild().getIdLong() + " AND channelid = " + tc.getIdLong() + " AND messageid = " + messageID + " AND emote = '" + emote + "'");
+							MySQL.deleteEntry("React_Roles", 
+									"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + tc.getIdLong() + " AND message_ID = " + messageID + " AND emote = '" + emote + "'");
 						}
 					}
 					else if (!emotes.isEmpty() && args[4].equalsIgnoreCase("all")){
 						tc.clearReactionsById(messageID);
 
-						LiteSQL.deleteEntry("reactroles", 
-								"guildid = " + channel.getGuild().getIdLong() + " AND channelid = " + tc.getIdLong() + " AND messageid = " + messageID);
+						MySQL.deleteEntry("React_Roles", 
+								"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + tc.getIdLong() + " AND message_ID = " + messageID);
 					}
 				}
 				catch (NumberFormatException e) { }

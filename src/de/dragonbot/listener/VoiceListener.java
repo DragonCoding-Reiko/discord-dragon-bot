@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.dragonbot.manage.LiteSQL;
+import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
@@ -41,14 +41,14 @@ public class VoiceListener extends ListenerAdapter{
 	private void onJoin(VoiceChannel channelJoined, Member memb) {
 		Boolean isHubVC = false;
 
-		ResultSet set = LiteSQL.getEntrys("categoryid, channelid", 
-				"voicechannelhubs", 
-				"guildid = " + channelJoined.getGuild().getIdLong());
+		ResultSet set = MySQL.getEntrys("category_ID, channel_ID", 
+				"Voice_Channel_Hubs", 
+				"guild_ID = " + channelJoined.getGuild().getIdLong());
 
 		try {
 			while(set.next()) {
-				Long category = set.getLong("categoryid");
-				Long channel = set.getLong("channelid");
+				Long category = set.getLong("category_ID");
+				Long channel = set.getLong("channel_ID");
 
 				if(channelJoined.getParent().getIdLong() == category) {
 					if(channelJoined.getIdLong() == channel) {

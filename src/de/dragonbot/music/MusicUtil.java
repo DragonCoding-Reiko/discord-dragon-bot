@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 import de.dragonbot.DragonBot;
-import de.dragonbot.manage.LiteSQL;
+import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -13,32 +13,32 @@ import net.dv8tion.jda.api.entities.TextChannel;
 public class MusicUtil {
 
 	public static void updateChannel(TextChannel channel) {
-		ResultSet set = LiteSQL.getEntrys("*", 
-				"musicchannel", 
-				"guildid = " + channel.getGuild().getIdLong());
+		ResultSet set = MySQL.getEntrys("*", 
+				"Music_Channel", 
+				"guild_ID = " + channel.getGuild().getIdLong());
 
 		try {
 			if(set.next()) {
-				LiteSQL.updateEntry("musicchannel", 
-						"channelid = " + channel.getIdLong(), 
-						"guildid = " + channel.getGuild().getIdLong());
+				MySQL.updateEntry("Music_Channel", 
+						"channel_ID = " + channel.getIdLong(), 
+						"guild_ID = " + channel.getGuild().getIdLong());
 			}
 			else {
-				LiteSQL.newEntry("musicchannel", 
-						"guildid, channelid", 
+				MySQL.newEntry("Music_Channel", 
+						"guild_ID, channel_ID", 
 						channel.getGuild().getIdLong() + ", " + channel.getIdLong());
 			}
 		} catch (SQLException e) { }
 	}
 
 	public static void sendEmbed(Long guildid, EmbedBuilder builder) {
-		ResultSet set = LiteSQL.getEntrys("*", 
-				"musicchannel", 
-				"guildid = " + guildid);
+		ResultSet set = MySQL.getEntrys("*", 
+				"Music_Channel", 
+				"guild_ID = " + guildid);
 
 		try {
 			if(set.next()) {
-				long channelid = set.getLong("channelid");
+				long channelid = set.getLong("channel_ID");
 
 				Guild guild;
 				if((guild = DragonBot.INSTANCE.shardMan.getGuildById(guildid)) != null) {

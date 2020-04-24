@@ -30,7 +30,7 @@ import de.dragonbot.listener.member.MemberLeaveListener;
 import de.dragonbot.listener.reactrole.ReactRoleAddListener;
 import de.dragonbot.listener.reactrole.ReactRoleRemoveListener;
 import de.dragonbot.manage.CommandManager;
-import de.dragonbot.manage.LiteSQL;
+import de.dragonbot.manage.MySQL;
 import de.dragonbot.manage.SQLManager;
 import de.dragonbot.music.MusicController;
 import de.dragonbot.music.MusicDashboard;
@@ -51,6 +51,7 @@ public class DragonBot {
 	public String token;
 	public String link;
 	public String mysqlLink;
+	public String gameSQLLink;
 	public String mysqlUser;
 	public String mysqlPswd;
 	
@@ -72,7 +73,7 @@ public class DragonBot {
 	public DragonBot() throws LoginException, IllegalArgumentException {
 		INSTANCE = this;
 
-JSONParser jsonParser = new JSONParser();
+		JSONParser jsonParser = new JSONParser();
 		
 		try (FileReader reader = new FileReader("DONOTOPEN.json"))
         {
@@ -85,12 +86,17 @@ JSONParser jsonParser = new JSONParser();
             
             this.token = jsonObj.get("token").toString();
             this.link = jsonObj.get("link").toString();
+            this.mysqlLink = jsonObj.get("mysqlLink").toString();
+            this.gameSQLLink = jsonObj.get("gameSQLLink").toString();
+            this.mysqlUser = jsonObj.get("mysqlUser").toString();
+            this.mysqlPswd = jsonObj.get("mysqlPswd").toString();
 
         } catch (ParseException | IOException e) {
             e.printStackTrace();
         }
 		
-		LiteSQL.connect();
+		MySQL.connect();
+		//LiteSQL.connect();
 		SQLManager.onCreate();
 		
 		@SuppressWarnings("deprecation")
@@ -168,7 +174,7 @@ JSONParser jsonParser = new JSONParser();
 							MusicDashboard.onShutdown();
 							shardMan.setStatus(OnlineStatus.OFFLINE);
 							shardMan.shutdown();
-							LiteSQL.disconnect();
+							MySQL.disconnect();
 
 							System.out.println("Bot is offline.");
 						}
@@ -198,7 +204,7 @@ JSONParser jsonParser = new JSONParser();
 							MusicDashboard.onShutdown();
 							shardMan.setStatus(OnlineStatus.OFFLINE);
 							shardMan.shutdown();
-							LiteSQL.disconnect();
+							MySQL.disconnect();
 							
 							System.out.println("Bot is offline!");
 						}

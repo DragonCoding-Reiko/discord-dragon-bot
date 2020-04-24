@@ -1,6 +1,6 @@
 package de.dragonbot.listener.guild;
 
-import de.dragonbot.manage.LiteSQL;
+import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -13,12 +13,16 @@ public class GuildJoinListener extends ListenerAdapter{
 
 	private void setDefault(Guild guild) {
 		//Setting DBs
-		LiteSQL.newEntry("settings", 
-				"guildid, deletemessage", 
+		MySQL.newEntry("Guilds", 
+				"guild_ID, joined", 
+				guild.getIdLong() + ", " + true);
+		
+		MySQL.newEntry("Settings", 
+				"guild_ID, delete_Message", 
 				guild.getIdLong() + ", " + false);
 
-		LiteSQL.newEntry("musicsettings", 
-				"guildid, nowplaying", 
+		MySQL.newEntry("Music_Settings", 
+				"guild_ID, now_playing", 
 				guild.getIdLong() + ", " + false);
 
 	}

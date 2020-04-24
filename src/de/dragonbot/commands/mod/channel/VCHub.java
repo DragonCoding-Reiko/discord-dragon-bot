@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.EnumSet;
 
 import de.dragonbot.commands.ServerCommand;
-import de.dragonbot.manage.LiteSQL;
+import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Guild;
@@ -51,8 +51,8 @@ public class VCHub implements ServerCommand{
 			}
 			vc.getManager().setParent(cat).complete();
 
-			LiteSQL.newEntry("voicechannelhubs", 
-					"guildid, categoryid, channelid", 
+			MySQL.newEntry("Voice_Channel_Hubs", 
+					"guild_ID, category_ID, channel_ID", 
 					guild.getIdLong() + ", " + cat.getIdLong() + ", " + vc.getIdLong());
 		}
 		//Delete a VC Hub
@@ -60,14 +60,14 @@ public class VCHub implements ServerCommand{
 
 			VoiceChannel vc = guild.getVoiceChannelsByName(args[2], true).get(0);
 
-			ResultSet set = LiteSQL.getEntrys("categoryid, channelid", 
-					"voicechannelhubs", 
-					"guildid = " + guild.getIdLong() + " AND channelid = " + vc.getIdLong());
+			ResultSet set = MySQL.getEntrys("category_ID, channel_ID", 
+					"Voice_Channel_Hubs", 
+					"guild_ID = " + guild.getIdLong() + " AND channel_ID = " + vc.getIdLong());
 
 			try {
 				while(set.next()) {
-					LiteSQL.deleteEntry("voicechannelhubs", 
-							"guildid = " + guild.getIdLong() + " AND channelid = " + vc.getIdLong());
+					MySQL.deleteEntry("Voice_Channel_Hubs", 
+							"guild_ID = " + guild.getIdLong() + " AND channel_ID = " + vc.getIdLong());
 				}
 			} catch (SQLException e) { e.printStackTrace(); }
 
