@@ -88,8 +88,8 @@ public class Stats implements ServerCommand{
 	public static void fillCategory(Category cat) {
 		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 		SimpleDateFormat df2 = new SimpleDateFormat("dd.MM.YYYY");
-		cat.createVoiceChannel("🕗 Uhrzeit: " + df.format(Calendar.getInstance().getTime()) + "Uhr").queue();
-		cat.createVoiceChannel("📅 Datum: " + df2.format(Calendar.getInstance().getTime())).queue();
+		cat.createVoiceChannel("🕗  Uhrzeit: " + df.format(Calendar.getInstance().getTime()) + "Uhr").queue();
+		cat.createVoiceChannel("📅  Datum: " + df2.format(Calendar.getInstance().getTime())).queue();
 
 		List<Member> members = cat.getGuild().getMembers();
 		int member = 0;
@@ -98,7 +98,6 @@ public class Stats implements ServerCommand{
 				member++;
 			}
 		}
-		cat.createVoiceChannel("📈 Server Mitglieder: " + member).queue();
 		int online = 0;
 
 		for(Member memb : members) {
@@ -108,8 +107,8 @@ public class Stats implements ServerCommand{
 				}
 			}
 		}
-		cat.createVoiceChannel("🔘 Online User: " + online).queue();
-		cat.createVoiceChannel("✅ BOT ONLINE").queue();
+		cat.createVoiceChannel("🔘  Online User: " + online + " / " + member).queue();
+		cat.createVoiceChannel("✅  BOT ONLINE").queue();
 
 		PermissionOverride override = new PermissionOverrideActionImpl(cat.getJDA(), cat, cat.getGuild().getPublicRole()).complete();
 
@@ -129,9 +128,15 @@ public class Stats implements ServerCommand{
 			SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 			SimpleDateFormat df2 = new SimpleDateFormat("EEEE dd.MM.YYYY");
 
-			channels.get(0).getManager().setName("🕗 Uhrzeit: " + df.format(Calendar.getInstance().getTime()) + "Uhr").queue();
-			channels.get(1).getManager().setName("📅   " + df2.format(Calendar.getInstance().getTime())).queue();
+			channels.get(0).getManager().setName("🕗  Uhrzeit: " + df.format(Calendar.getInstance().getTime()) + "Uhr").queue();
+			channels.get(1).getManager().setName("📅  Datum: " + df2.format(Calendar.getInstance().getTime())).queue();
 			List<Member> members = cat.getGuild().getMembers();
+			int member = 0;
+			for(Member memb : members) {
+				if(!memb.getUser().isBot()) {
+					member++;
+				}
+			}
 			int online = 0;
 
 			for(Member memb : members) {
@@ -141,8 +146,7 @@ public class Stats implements ServerCommand{
 					}
 				}
 			}
-			channels.get(2).getManager().setName("📈 Server Mitglieder: " + members.size()).queue();
-			channels.get(3).getManager().setName("🔘 Online User: " + online).queue();
+			channels.get(3).getManager().setName("🔘  Online User: " + online + " / " + member).queue();
 		}
 	}
 
@@ -201,7 +205,7 @@ public class Stats implements ServerCommand{
 						chan.delete().complete();
 					});
 
-					VoiceChannel offline = cat.createVoiceChannel("🔴 BOT OFFLINE").complete();
+					VoiceChannel offline = cat.createVoiceChannel("🔴  BOT OFFLINE").complete();
 					PermissionOverride override = new PermissionOverrideActionImpl(cat.getJDA(), offline, cat.getGuild().getPublicRole()).complete();
 
 					offline.getManager().putPermissionOverride(override.getRole(), null, EnumSet.of(Permission.VOICE_CONNECT)).queue();

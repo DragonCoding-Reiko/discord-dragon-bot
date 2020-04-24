@@ -11,6 +11,7 @@ import de.dragonbot.commands.mod.normal.Clear;
 import de.dragonbot.commands.mod.normal.CreateReactRole;
 import de.dragonbot.commands.mod.normal.UserInfo;
 import de.dragonbot.commands.music.BackSong;
+import de.dragonbot.commands.music.ChangeVolume;
 import de.dragonbot.commands.music.ListQueue;
 import de.dragonbot.commands.music.LoopSong;
 import de.dragonbot.commands.music.NowPlaying;
@@ -56,6 +57,7 @@ public class CommandManager {
 		this.commands.put("vchub", new VCHub());
 
 		//MusicCommands - Manage your Music
+		this.commands.put("volume", new ChangeVolume());
 		this.commands.put("back", new BackSong());
 		this.commands.put("queue", new ListQueue());
 		this.commands.put("loop", new LoopSong());

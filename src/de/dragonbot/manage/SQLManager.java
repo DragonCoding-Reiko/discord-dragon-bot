@@ -50,8 +50,11 @@ public class SQLManager {
 		//Saves all the reactions and its function
 		LiteSQL.newTable("dashboardreactions", "id INTEGER", 
 				"guildid INTEGER, channelid INTEGER, messageid INTEGER, emote TEXT, action TEXT");
-		//Saves the Channel or the Now Playing Dashboard
+		//Saves the Channel for the Dashboard
 		LiteSQL.newTable("npchannel", "id INTEGER", 
 				"guildid INTEGER, channelid INTEGER");
+		//Saves the Messages for the Dashboard
+		LiteSQL.newTable("messages", "id INTEGER", 
+				"guildid INTEGER, channelid INTEGER, msg1 INTEGER, msg2 INTEGER, msg3 INTEGER");
 	}
 }

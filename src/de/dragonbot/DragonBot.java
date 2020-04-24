@@ -1,30 +1,45 @@
 package de.dragonbot;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Random;
 
 import javax.security.auth.login.LoginException;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 
 import de.dragonbot.commands.mod.channel.Stats;
-import de.dragonbot.listener.CommandListener;
-import de.dragonbot.listener.MemberJoinListener;
-import de.dragonbot.listener.ReactionListener;
+import de.dragonbot.listener.MusicDashboardReactionListener;
+import de.dragonbot.listener.TextListener;
 import de.dragonbot.listener.VoiceListener;
+import de.dragonbot.listener.guild.GuildJoinListener;
+import de.dragonbot.listener.guild.GuildLeaveListener;
+import de.dragonbot.listener.member.MemberJoinListener;
+import de.dragonbot.listener.member.MemberLeaveListener;
+import de.dragonbot.listener.reactrole.ReactRoleAddListener;
+import de.dragonbot.listener.reactrole.ReactRoleRemoveListener;
 import de.dragonbot.manage.CommandManager;
-import de.dragonbot.manage.DONOTOPEN;
 import de.dragonbot.manage.LiteSQL;
 import de.dragonbot.manage.SQLManager;
+import de.dragonbot.music.MusicController;
+import de.dragonbot.music.MusicDashboard;
 import de.dragonbot.music.PlayerManager;
+import de.dragonbot.music.Queue;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
@@ -32,6 +47,8 @@ public class DragonBot {
 
 	public static DragonBot INSTANCE;
 
+	public String token;
+	public String link;
 	public ShardManager shardMan;
 	private CommandManager cmdMan;
 	private Thread loop;
@@ -53,10 +70,27 @@ public class DragonBot {
 		LiteSQL.connect();
 		SQLManager.onCreate();
 
+		JSONParser jsonParser = new JSONParser();
+		
+		try (FileReader reader = new FileReader("DONOTOPEN.json"))
+        {
+            //Read JSON file
+            Object obj = jsonParser.parse(reader);
+ 
+            JSONArray infoList = (JSONArray) obj;
 
+            JSONObject jsonObj = (JSONObject) infoList.get(0);
+            
+            this.token = jsonObj.get("token").toString();
+            this.link = jsonObj.get("link").toString();
+ 
+        } catch (ParseException | IOException e) {
+            e.printStackTrace();
+        }
+		
 		@SuppressWarnings("deprecation")
 		DefaultShardManagerBuilder builder = new DefaultShardManagerBuilder();
-		builder.setToken(DONOTOPEN.token);
+		builder.setToken(this.token);
 		builder.setStatus(OnlineStatus.ONLINE);
 
 		this.audioPlayermanager = new DefaultAudioPlayerManager();
@@ -64,10 +98,19 @@ public class DragonBot {
 
 		this.cmdMan = new CommandManager();
 
-		builder.addEventListeners(new CommandListener());
+		builder.addEventListeners(new TextListener());
 		builder.addEventListeners(new VoiceListener());
-		builder.addEventListeners(new ReactionListener());
+		
+		builder.addEventListeners(new ReactRoleAddListener());
+		builder.addEventListeners(new ReactRoleRemoveListener());
+		
 		builder.addEventListeners(new MemberJoinListener());
+		builder.addEventListeners(new MemberLeaveListener());
+		
+		builder.addEventListeners(new GuildJoinListener());
+		builder.addEventListeners(new GuildLeaveListener());
+		
+		builder.addEventListeners(new MusicDashboardReactionListener());
 
 		shardMan = builder.build();
 		System.out.println("Status: Online.");
@@ -90,14 +133,13 @@ public class DragonBot {
 
 			try {
 				while((line = reader.readLine()) != null) {
-					System.out.println();
 					System.out.println(line.toLowerCase());
 					shutdownMessage = line.substring((line.indexOf(" ") + 1));
 
 					if(line.toLowerCase().startsWith("exit")) {
 
 						for(Guild guild : shardMan.getGuilds()) {
-							System.out.println(guild.getName() + " " + guild.getIdLong());
+							System.out.println(guild.getName());
 							if((server = guild.getDefaultChannel()) != null) {
 								server.sendMessage("Der Bot fährt jetzt herunter. \n" + "Grund: " +  shutdownMessage).queue();
 							}
@@ -105,7 +147,18 @@ public class DragonBot {
 
 						shutdown = true;
 						if(shardMan != null) {
+							for(Guild guild : shardMan.getGuilds()) {
+								MusicController controller = DragonBot.INSTANCE.playerManager.getController(guild.getIdLong());
+								Queue queue = controller.getQueue();
+								AudioPlayer player = controller.getPlayer();
+								AudioManager manager = guild.getAudioManager();
+								queue.onStop();
+								queue.setFirst(true);
+								player.stopTrack();
+								manager.closeAudioConnection();
+							}
 							Stats.onShutdown();
+							MusicDashboard.onShutdown();
 							shardMan.setStatus(OnlineStatus.OFFLINE);
 							shardMan.shutdown();
 							LiteSQL.disconnect();
@@ -126,7 +179,7 @@ public class DragonBot {
 					else if(line.toLowerCase().startsWith("restart")) {
 
 						for(Guild guild : shardMan.getGuilds()) {
-							System.out.println(guild.getName() + " " + guild.getIdLong());
+							System.out.println(guild.getName());
 							if((server = guild.getDefaultChannel()) != null) {
 								server.sendMessage("Der Bot restartet. \n" + "Grund: " +  shutdownMessage).queue();
 							}
@@ -135,11 +188,11 @@ public class DragonBot {
 						shutdown = true;
 						if(shardMan != null) {
 							Stats.onShutdown();
+							MusicDashboard.onShutdown();
 							shardMan.setStatus(OnlineStatus.OFFLINE);
 							shardMan.shutdown();
 							LiteSQL.disconnect();
-
-							System.out.println("Bot is offline.");
+							System.out.println("Bot is offline!");
 						}
 						if(loop != null) {
 							loop.interrupt();
@@ -185,16 +238,37 @@ public class DragonBot {
 		this.loop.start();
 	}
 
-	String[] status = new String[] {"auf %server Servern", "Dev's Freunden", "seinem Dev", "deinen Befehlen", "#dragon", "#d help"};
-	int[] colors = new int[] {0xff9478, 0xd2527f, 0x00b5cc, 0x19b5fe, 0x2ecc71, 0x23cba7, 0x00e640, 0x8c14fc, 0x9f5afd, 0x663399};
+	String[] status = new String[] {"auf %server Servern", "Dev's Freunden", "seinem Dev", "deinen Befehlen", "#dragon"};
 	int next = 0;
+	int playingInfo = 0;
+	int queueInfo = 0;
+	int stats = 0;
 
 	public void onSecond() {
 
-		if(next == 0 || next == 5) {
+		if(playingInfo == 0) {
+			MusicDashboard.update();
+			
+			playingInfo = 2;
+		} 
+		else {
+			playingInfo--;
+		}
+		
+		if(stats == 0) {
+			Stats.checkStats();
+			
+			stats = 5;
+		} 
+		else {
+			stats--;
+		}
+		
+		if(next == 0) {
 			if(!hasStarted) {
 				hasStarted = true;
 				Stats.onStartUP();
+				MusicDashboard.onStartUp();
 			}
 
 			Random rand = new Random();		
@@ -206,15 +280,12 @@ public class DragonBot {
 				jda.getPresence().setActivity(Activity.listening(text));
 			});
 
-			Stats.checkStats();
-
-			next = 10;
+			next = 5;
 		}
 		else {
 			next--;
 		}
 
-		//MusicDashboard.refresh
 	}
 
 	public CommandManager getCmdMan() {

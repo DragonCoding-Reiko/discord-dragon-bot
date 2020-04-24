@@ -1,5 +1,7 @@
 package de.dragonbot.music;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -7,22 +9,34 @@ import java.util.List;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import de.dragonbot.commands.random.SendAsEmbed;
+import de.dragonbot.manage.LiteSQL;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class Queue {
 
 	private List<AudioTrack> queueList;
 	private List<AudioTrack> lastSongs;
+	
+	private ResultSet set;
+	
 	private MusicController controller;
+	private Guild guild;
+	private boolean isFirst = true;
 	private boolean isLoop;
 	private boolean isSingleLoop;
 
 	public Queue(MusicController controller) {
+		
 		this.controller = controller;
 		this.setQueueList(new ArrayList<AudioTrack>());
 		this.setLastList(new ArrayList<AudioTrack>());
 		this.isLoop = false;
 		this.isSingleLoop = false;
+		this.guild = controller.getGuild();
+		this.set = LiteSQL.getEntrys("channelid",
+				"npchannel",
+				"guildid = " + guild.getIdLong());
 	}
 
 	public boolean isNext() {
@@ -91,6 +105,14 @@ public class Queue {
 				addTrackToLast0(track);
 			}
 			this.controller.getPlayer().playTrack(track);
+
+			try {
+				if(set.next()) {
+					TextChannel channel = guild.getTextChannelById(set.getLong("channelid"));
+
+					MusicDashboard.updateQueue(channel, controller, controller.getPlayer());
+				}
+			} catch (SQLException e) { e.printStackTrace(); }
 		}
 	}
 
@@ -112,6 +134,14 @@ public class Queue {
 				addTrackToLast0(track);
 			}
 			this.controller.getPlayer().playTrack(track);
+
+			try {
+				if(set.next()) {
+					TextChannel channel = guild.getTextChannelById(set.getLong("channelid"));
+
+					MusicDashboard.updateQueue(channel, controller, controller.getPlayer());
+				}
+			} catch (SQLException e) { e.printStackTrace(); }
 		}
 	}
 
@@ -129,6 +159,13 @@ public class Queue {
 				}
 			}
 
+			try {
+				if(set.next()) {
+					TextChannel channel = guild.getTextChannelById(set.getLong("channelid"));
+
+					MusicDashboard.updateQueue(channel, controller, controller.getPlayer());
+				}
+			} catch (SQLException e) { e.printStackTrace(); }
 		}
 	}
 
@@ -213,9 +250,20 @@ public class Queue {
 	}
 
 
-	//SingleLoop Getter
+	//Bool Getter
 	public boolean isSingleLoop() {
 		return this.isSingleLoop;
 	}
+	
+	public boolean isLoop() {
+		return this.isLoop;
+	}
 
+	public boolean isFirst() {
+		return this.isFirst;
+	}
+	
+	public void setFirst(boolean isFirst) {
+		this.isFirst = isFirst;
+	}
 }

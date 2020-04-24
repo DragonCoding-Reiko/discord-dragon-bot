@@ -14,7 +14,6 @@ public class LoopSong implements ServerCommand{
 	@Override
 	public void performCommand(Member m, TextChannel channel, Message message, int subString) {
 		message.delete().queue();
-		//loop single
 
 		GuildVoiceState state;
 		if((state = m.getVoiceState()) != null) {
@@ -27,11 +26,9 @@ public class LoopSong implements ServerCommand{
 
 				//loop single
 				if(args.length == 1) {
-					System.out.println("Loop");
 					controller.getQueue().loop(channel);
 
 				} else if(args[1].toLowerCase().contains("single")) {
-					System.out.println("Single Loop");
 					controller.getQueue().singleLoop();
 
 				}
