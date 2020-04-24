@@ -1,4 +1,4 @@
-package de.dragonbot.listener;
+package de.dragonbot.listener.dashboard;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 
-public class MusicDashboardReactionListener extends ListenerAdapter{
+public class DashboardReactionListener extends ListenerAdapter{
 
 	@Override
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {

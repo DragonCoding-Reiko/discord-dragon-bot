@@ -19,9 +19,10 @@ import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 
 import de.dragonbot.commands.mod.channel.Stats;
-import de.dragonbot.listener.MusicDashboardReactionListener;
-import de.dragonbot.listener.TextListener;
+import de.dragonbot.listener.CommandListener;
 import de.dragonbot.listener.VoiceListener;
+import de.dragonbot.listener.dashboard.DashboardReactionListener;
+import de.dragonbot.listener.dashboard.DashboardTextListener;
 import de.dragonbot.listener.guild.GuildJoinListener;
 import de.dragonbot.listener.guild.GuildLeaveListener;
 import de.dragonbot.listener.member.MemberJoinListener;
@@ -49,6 +50,10 @@ public class DragonBot {
 
 	public String token;
 	public String link;
+	public String mysqlLink;
+	public String mysqlUser;
+	public String mysqlPswd;
+	
 	public ShardManager shardMan;
 	private CommandManager cmdMan;
 	private Thread loop;
@@ -67,10 +72,7 @@ public class DragonBot {
 	public DragonBot() throws LoginException, IllegalArgumentException {
 		INSTANCE = this;
 
-		LiteSQL.connect();
-		SQLManager.onCreate();
-
-		JSONParser jsonParser = new JSONParser();
+JSONParser jsonParser = new JSONParser();
 		
 		try (FileReader reader = new FileReader("DONOTOPEN.json"))
         {
@@ -83,10 +85,13 @@ public class DragonBot {
             
             this.token = jsonObj.get("token").toString();
             this.link = jsonObj.get("link").toString();
- 
+
         } catch (ParseException | IOException e) {
             e.printStackTrace();
         }
+		
+		LiteSQL.connect();
+		SQLManager.onCreate();
 		
 		@SuppressWarnings("deprecation")
 		DefaultShardManagerBuilder builder = new DefaultShardManagerBuilder();
@@ -98,7 +103,7 @@ public class DragonBot {
 
 		this.cmdMan = new CommandManager();
 
-		builder.addEventListeners(new TextListener());
+		builder.addEventListeners(new CommandListener());
 		builder.addEventListeners(new VoiceListener());
 		
 		builder.addEventListeners(new ReactRoleAddListener());
@@ -110,7 +115,8 @@ public class DragonBot {
 		builder.addEventListeners(new GuildJoinListener());
 		builder.addEventListeners(new GuildLeaveListener());
 		
-		builder.addEventListeners(new MusicDashboardReactionListener());
+		builder.addEventListeners(new DashboardReactionListener());
+		builder.addEventListeners(new DashboardTextListener());
 
 		shardMan = builder.build();
 		System.out.println("Status: Online.");
@@ -133,18 +139,19 @@ public class DragonBot {
 
 			try {
 				while((line = reader.readLine()) != null) {
-					System.out.println(line.toLowerCase());
 					shutdownMessage = line.substring((line.indexOf(" ") + 1));
 
 					if(line.toLowerCase().startsWith("exit")) {
 
 						for(Guild guild : shardMan.getGuilds()) {
 							System.out.println(guild.getName());
+							
 							if((server = guild.getDefaultChannel()) != null) {
 								server.sendMessage("Der Bot fährt jetzt herunter. \n" + "Grund: " +  shutdownMessage).queue();
 							}
 						}
-
+						System.out.println(" ");
+						
 						shutdown = true;
 						if(shardMan != null) {
 							for(Guild guild : shardMan.getGuilds()) {
@@ -192,6 +199,7 @@ public class DragonBot {
 							shardMan.setStatus(OnlineStatus.OFFLINE);
 							shardMan.shutdown();
 							LiteSQL.disconnect();
+							
 							System.out.println("Bot is offline!");
 						}
 						if(loop != null) {
@@ -231,14 +239,12 @@ public class DragonBot {
 					onSecond();
 				}
 			}
-
-
 		});
 		this.loop.setName("Loop");
 		this.loop.start();
 	}
 
-	String[] status = new String[] {"auf %server Servern", "Dev's Freunden", "seinem Dev", "deinen Befehlen", "#dragon"};
+	String[] status = new String[] {"auf %server Servern", "#dragon"};
 	int next = 0;
 	int playingInfo = 0;
 	int queueInfo = 0;

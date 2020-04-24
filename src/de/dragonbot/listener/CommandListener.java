@@ -1,9 +1,13 @@
 package de.dragonbot.listener;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 import de.dragonbot.DragonBot;
+import de.dragonbot.manage.LiteSQL;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -22,13 +26,25 @@ public class CommandListener extends ListenerAdapter{
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
 		if(event.getChannelType() == ChannelType.TEXT) {
-			onMessage(event.getMessage(), event.getTextChannel(), event.getMember());
+			Long channelid = dashboard(event.getGuild());
+			
+			if(channelid != event.getChannel().getIdLong()) {
+				onMessage(event.getMessage(), event.getTextChannel(), event.getMember());
+			}
+			else if(event.getMessage().getAuthor() != event.getGuild().getSelfMember().getUser()) {
+					
+					event.getMessage().delete().queue();
+			}
 		}
 	}
 
 	public void onMessageUpdate(MessageUpdateEvent event) {
 		if(event.getChannelType() == ChannelType.TEXT) {
-			onMessage(event.getMessage(), event.getTextChannel(), event.getMember());
+			Long channelid = dashboard(event.getGuild());
+			
+			if(channelid != event.getChannel().getIdLong()) {
+				onMessage(event.getMessage(), event.getTextChannel(), event.getMember());
+			}
 		}
 	}
 
@@ -64,6 +80,21 @@ public class CommandListener extends ListenerAdapter{
 		}
 	}
 
+	public Long dashboard(Guild guild) {
+		ResultSet set = LiteSQL.getEntrys("channelid", "npchannel", 
+				"guildid = " + guild.getIdLong());
+		
+		long channelid = 0l;
+		
+		try {
+			if(set.next()) {
+				channelid = set.getLong("channelid");
+			}
+		} catch (SQLException e) { e.printStackTrace(); }
+		
+		return channelid;
+	}
+	
 }
 
 
