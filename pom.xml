@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>DragonBot</groupId>
   <artifactId>DragonBot</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-ALPHA</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
@@ -27,7 +27,7 @@
   	<dependency>
 		<groupId>net.dv8tion</groupId>
 		<artifactId>JDA</artifactId>
-		<version>4.1.1_136</version>
+		<version>4.1.1_135</version>
 	</dependency>
 	<!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
 	<dependency>
@@ -38,7 +38,18 @@
 	<dependency>
 		<groupId>com.sedmelluq</groupId>
 		<artifactId>lavaplayer</artifactId>
-		<version>1.3.47</version>
+		<version>1.3.46</version>
 	</dependency>
+	<dependency>
+    	<groupId>com.googlecode.json-simple</groupId>
+    	<artifactId>json-simple</artifactId>
+    	<version>1.1.1</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+	<dependency>
+    	<groupId>mysql</groupId>
+    	<artifactId>mysql-connector-java</artifactId>
+    	<version>8.0.19</version>
+	</dependency>	
 </dependencies>
 </project>
