@@ -82,11 +82,12 @@ public class MusicDashboard {
 
 	public static void onStartPlaying(Guild guild) {
 
-			ResultSet set = MySQL.getEntrys("channel_ID",
-					"Dashboard",
-					"guild_ID = " + guild.getIdLong());
+			ResultSet set = MySQL.getEntrys("channel_ID", "Dashboard",
+										"guild_ID = " + guild.getIdLong());
 
 			Long guildid = guild.getIdLong();
+			Long channelid = null;
+			
 			MusicController controller = DragonBot.INSTANCE.playerManager.getController(guildid);
 			Queue queue = controller.getQueue();
 
@@ -94,7 +95,8 @@ public class MusicDashboard {
 				queue.setFirst(false);
 				try {
 					if(set.next()) {
-						TextChannel channel = guild.getTextChannelById(set.getLong("channel_ID"));
+						channelid = set.getLong("channel_ID");
+						TextChannel channel = guild.getTextChannelById(channelid);
 						AudioPlayer player = controller.getPlayer();
 						List<Message> messages = new ArrayList<>();
 
@@ -109,7 +111,7 @@ public class MusicDashboard {
 						Message msg3 = sendVolume(channel, player);
 
 						MySQL.newEntry("Messages", "guild_ID, channel_ID, message_ID_1, message_ID_2, message_ID_3",
-								guildid + ", " + set.getLong("channel_ID") + ", " + msg1.getIdLong() + ", " + msg2.getIdLong() + ", " + msg3.getIdLong());
+								guildid + ", " + channelid + ", " + msg1.getIdLong() + ", " + msg2.getIdLong() + ", " + msg3.getIdLong());
 					}
 				} catch (SQLException e) {
 					e.printStackTrace();

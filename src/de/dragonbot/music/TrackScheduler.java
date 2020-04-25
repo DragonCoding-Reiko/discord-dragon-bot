@@ -131,6 +131,7 @@ public class TrackScheduler extends AudioEventAdapter{
 					MusicUtil.sendEmbed(guildid, builder);
 				} else {
 					MusicDashboard.onStartPlaying(DragonBot.INSTANCE.shardMan.getGuildById(guildid));
+					
 				}
 			}
 		} catch (SQLException e) {

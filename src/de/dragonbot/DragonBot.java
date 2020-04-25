@@ -96,7 +96,6 @@ public class DragonBot {
         }
 		
 		MySQL.connect();
-		//LiteSQL.connect();
 		SQLManager.onCreate();
 		
 		@SuppressWarnings("deprecation")
@@ -140,7 +139,6 @@ public class DragonBot {
 
 			String line = "";
 			String shutdownMessage = "";
-			TextChannel server;
 			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
 			try {
@@ -149,38 +147,7 @@ public class DragonBot {
 
 					if(line.toLowerCase().startsWith("exit")) {
 
-						for(Guild guild : shardMan.getGuilds()) {
-							System.out.println(guild.getName());
-							
-							if((server = guild.getDefaultChannel()) != null) {
-								server.sendMessage("Der Bot fährt jetzt herunter. \n" + "Grund: " +  shutdownMessage).queue();
-							}
-						}
-						System.out.println(" ");
-						
-						shutdown = true;
-						if(shardMan != null) {
-							for(Guild guild : shardMan.getGuilds()) {
-								MusicController controller = DragonBot.INSTANCE.playerManager.getController(guild.getIdLong());
-								Queue queue = controller.getQueue();
-								AudioPlayer player = controller.getPlayer();
-								AudioManager manager = guild.getAudioManager();
-								queue.onStop();
-								queue.setFirst(true);
-								player.stopTrack();
-								manager.closeAudioConnection();
-							}
-							Stats.onShutdown();
-							MusicDashboard.onShutdown();
-							shardMan.setStatus(OnlineStatus.OFFLINE);
-							shardMan.shutdown();
-							MySQL.disconnect();
-
-							System.out.println("Bot is offline.");
-						}
-						if(loop != null) {
-							loop.interrupt();
-						}
+						onShutdown(shutdownMessage);
 						reader.close();
 						break;
 					}
@@ -191,26 +158,7 @@ public class DragonBot {
 					}
 					else if(line.toLowerCase().startsWith("restart")) {
 
-						for(Guild guild : shardMan.getGuilds()) {
-							System.out.println(guild.getName());
-							if((server = guild.getDefaultChannel()) != null) {
-								server.sendMessage("Der Bot restartet. \n" + "Grund: " +  shutdownMessage).queue();
-							}
-						}
-
-						shutdown = true;
-						if(shardMan != null) {
-							Stats.onShutdown();
-							MusicDashboard.onShutdown();
-							shardMan.setStatus(OnlineStatus.OFFLINE);
-							shardMan.shutdown();
-							MySQL.disconnect();
-							
-							System.out.println("Bot is offline!");
-						}
-						if(loop != null) {
-							loop.interrupt();
-						}
+						onShutdown(shutdownMessage);
 						try {
 							new DragonBot();
 						}
@@ -253,7 +201,6 @@ public class DragonBot {
 	String[] status = new String[] {"auf %server Servern", "#dragon"};
 	int next = 0;
 	int playingInfo = 0;
-	int queueInfo = 0;
 	int stats = 0;
 
 	public void onSecond() {
@@ -263,18 +210,13 @@ public class DragonBot {
 			
 			playingInfo = 2;
 		} 
-		else {
-			playingInfo--;
-		}
+		else playingInfo--;
 		
 		if(stats == 0) {
 			Stats.checkStats();
-			
 			stats = 5;
 		} 
-		else {
-			stats--;
-		}
+		else stats--;
 		
 		if(next == 0) {
 			if(!hasStarted) {
@@ -292,11 +234,9 @@ public class DragonBot {
 				jda.getPresence().setActivity(Activity.listening(text));
 			});
 
-			next = 5;
+			next = 10;
 		}
-		else {
-			next--;
-		}
+		else next--;
 
 	}
 
@@ -306,5 +246,42 @@ public class DragonBot {
 	public ShardManager getShardMan() {
 		return shardMan;
 	}
+	
+	public void onShutdown(String message) {
+		TextChannel server;
+		for(Guild guild : shardMan.getGuilds()) {
+			
+			System.out.println(" ");
+			System.out.println(guild.getName());
+			
+			if((server = guild.getDefaultChannel()) != null) {
+				server.sendMessage("Der Bot fährt jetzt herunter. \n" + "Grund: " +  message).queue();
+			}
+		}
+		System.out.println(" ");
+		
+		shutdown = true;
+		if(shardMan != null) {
+			for(Guild guild : shardMan.getGuilds()) {
+				MusicController controller = DragonBot.INSTANCE.playerManager.getController(guild.getIdLong());
+				Queue queue = controller.getQueue();
+				AudioPlayer player = controller.getPlayer();
+				AudioManager manager = guild.getAudioManager();
+				queue.onStop();
+				queue.setFirst(true);
+				player.stopTrack();
+				manager.closeAudioConnection();
+			}
+			Stats.onShutdown();
+			MusicDashboard.onShutdown();
+			shardMan.setStatus(OnlineStatus.OFFLINE);
+			shardMan.shutdown();
+			MySQL.disconnect();
 
+			System.out.println("Bot is offline.");
+		}
+		if(loop != null) {
+			loop.interrupt();
+		}
+	}
 }

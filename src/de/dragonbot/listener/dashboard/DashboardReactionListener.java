@@ -75,10 +75,12 @@ public class DashboardReactionListener extends ListenerAdapter{
 			break;
 		case 4:
 			queue.shuffle();
+			MusicDashboard.updateQueue(channel, controller, player);
 			break;
 		case 5:
 			controller.getQueue().onStop();
-
+			MusicDashboard.updateQueue(channel, controller, player);
+			
 			player.stopTrack();
 			player.setPaused(false);
 
@@ -86,6 +88,7 @@ public class DashboardReactionListener extends ListenerAdapter{
 			break;
 		case 6:
 			queue.playLast();
+			MusicDashboard.updateQueue(channel, controller, player);
 			break;
 		case 7:
 			if(player.isPaused()) {
@@ -96,6 +99,7 @@ public class DashboardReactionListener extends ListenerAdapter{
 			break;
 		case 8:
 			queue.skip(1);
+			MusicDashboard.updateQueue(channel, controller, player);
 			break;
 		case 9:
 			queue.loop(channel);
@@ -105,6 +109,7 @@ public class DashboardReactionListener extends ListenerAdapter{
 			break;
 		case 11:
 			queue.deleteTrackFromQueue(0);
+			MusicDashboard.updateQueue(channel, controller, player);
 			break;
 		case 12:
 			help(member);

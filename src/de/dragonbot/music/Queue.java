@@ -18,8 +18,6 @@ public class Queue {
 	private List<AudioTrack> queueList;
 	private List<AudioTrack> lastSongs;
 	
-	private ResultSet set;
-	
 	private MusicController controller;
 	private Guild guild;
 	private boolean isFirst = true;
@@ -34,9 +32,6 @@ public class Queue {
 		this.isLoop = false;
 		this.isSingleLoop = false;
 		this.guild = controller.getGuild();
-		this.set = MySQL.getEntrys("channel_ID",
-				"Dashboard",
-				"guild_ID = " + guild.getIdLong());
 	}
 
 	public boolean isNext() {
@@ -106,6 +101,9 @@ public class Queue {
 			}
 			this.controller.getPlayer().playTrack(track);
 
+			ResultSet set = MySQL.getEntrys("channel_ID", "Dashboard",
+					"guild_ID = " + guild.getIdLong());
+			
 			try {
 				if(set.next()) {
 					TextChannel channel = guild.getTextChannelById(set.getLong("channel_ID"));
@@ -135,6 +133,9 @@ public class Queue {
 			}
 			this.controller.getPlayer().playTrack(track);
 
+			ResultSet set = MySQL.getEntrys("channel_ID", "Dashboard",
+					"guild_ID = " + guild.getIdLong());
+			
 			try {
 				if(set.next()) {
 					TextChannel channel = guild.getTextChannelById(set.getLong("channel_ID"));
@@ -159,6 +160,9 @@ public class Queue {
 				}
 			}
 
+			ResultSet set = MySQL.getEntrys("channel_ID", "Dashboard",
+					"guild_ID = " + guild.getIdLong());
+			
 			try {
 				if(set.next()) {
 					TextChannel channel = guild.getTextChannelById(set.getLong("channel_ID"));
