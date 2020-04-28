@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 import de.dragonbot.DragonBot;
-import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -81,8 +80,8 @@ public class CommandListener extends ListenerAdapter{
 	}
 
 	public Long dashboard(Guild guild) {
-		ResultSet set = MySQL.getEntrys("channel_ID", "Dashboard", 
-				"guild_ID = " + guild.getIdLong());
+		ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID", "Dashboard", 
+								"guild_ID = " + guild.getIdLong());
 		
 		long channelid = 0l;
 		

@@ -4,8 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.EnumSet;
 
+import de.dragonbot.DragonBot;
 import de.dragonbot.commands.ServerCommand;
-import de.dragonbot.manage.MySQL;
 import de.dragonbot.music.MusicDashboard;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -24,7 +24,7 @@ public class NPChannel implements ServerCommand{
 		Guild guild = channel.getGuild();
 		String[] args = message.getContentDisplay().substring(subString).split(" ");
 
-		ResultSet set = MySQL.getEntrys("guild_ID, channel_ID", 
+		ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("guild_ID, channel_ID", 
 				"Dashboard", 
 				"guild_ID = " + guild.getIdLong());
 
@@ -36,11 +36,11 @@ public class NPChannel implements ServerCommand{
 
 					createdChannel = guild.createTextChannel(channelName).complete();
 
-					MySQL.updateEntry("Music_Settings", 
+					DragonBot.INSTANCE.mainDB.updateEntry("Music_Settings", 
 							"now_playing = " + true, 
 							"guild_ID = " + guild.getIdLong());
 
-					MySQL.newEntry("Dashboard", 
+					DragonBot.INSTANCE.mainDB.newEntry("Dashboard", 
 							"guild_ID, channel_ID", 
 							guild.getIdLong() + ", " + createdChannel.getIdLong());
 
@@ -56,11 +56,11 @@ public class NPChannel implements ServerCommand{
 			else if(args[1].equalsIgnoreCase("delete")) {
 				TextChannel ch = guild.getTextChannelById(set.getLong("channel_ID"));
 
-				MySQL.updateEntry("Music_Settings", 
+				DragonBot.INSTANCE.mainDB.updateEntry("Music_Settings", 
 						"now_playing = " + false, 
 						"guild_ID = " + guild.getIdLong());
 
-				MySQL.deleteEntry("Dashboard", 
+				DragonBot.INSTANCE.mainDB.deleteEntry("Dashboard", 
 						"guild_ID = " + guild.getIdLong());
 
 				ch.delete().complete();

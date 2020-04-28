@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 import de.dragonbot.DragonBot;
-import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -13,18 +12,18 @@ import net.dv8tion.jda.api.entities.TextChannel;
 public class MusicUtil {
 
 	public static void updateChannel(TextChannel channel) {
-		ResultSet set = MySQL.getEntrys("*", 
+		ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("*", 
 				"Music_Channel", 
 				"guild_ID = " + channel.getGuild().getIdLong());
 
 		try {
 			if(set.next()) {
-				MySQL.updateEntry("Music_Channel", 
+				DragonBot.INSTANCE.mainDB.updateEntry("Music_Channel", 
 						"channel_ID = " + channel.getIdLong(), 
 						"guild_ID = " + channel.getGuild().getIdLong());
 			}
 			else {
-				MySQL.newEntry("Music_Channel", 
+				DragonBot.INSTANCE.mainDB.newEntry("Music_Channel", 
 						"guild_ID, channel_ID", 
 						channel.getGuild().getIdLong() + ", " + channel.getIdLong());
 			}
@@ -32,7 +31,7 @@ public class MusicUtil {
 	}
 
 	public static void sendEmbed(Long guildid, EmbedBuilder builder) {
-		ResultSet set = MySQL.getEntrys("*", 
+		ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("*", 
 				"Music_Channel", 
 				"guild_ID = " + guildid);
 

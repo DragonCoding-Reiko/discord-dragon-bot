@@ -3,7 +3,7 @@ package de.dragonbot.listener.reactrole;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import de.dragonbot.manage.MySQL;
+import de.dragonbot.DragonBot;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -32,7 +32,7 @@ public class ReactRoleRemoveListener extends ListenerAdapter{
 			long channelid = channel.getIdLong();
 
 
-			ResultSet set = MySQL.getEntrys("role_ID", 
+			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("role_ID", 
 					"React_Roles", 
 					"guild_ID = " + guildid + " AND channel_ID = " + channelid + " AND message_ID = " + messageID + " AND emote = '" + emote + "'");
 

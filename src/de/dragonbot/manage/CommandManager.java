@@ -68,7 +68,7 @@ public class CommandManager {
 		this.commands.put("skip", new SkipSong());
 		this.commands.put("stop", new StopSong());
 
-		//BDOCommands - INformations and Utilities for BDO
+		//BDOCommands - Informations and Utilities for BDO
 
 
 	}

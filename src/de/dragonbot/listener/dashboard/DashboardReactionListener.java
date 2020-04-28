@@ -7,7 +7,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.music.ChangeVolume;
-import de.dragonbot.manage.MySQL;
 import de.dragonbot.music.MusicController;
 import de.dragonbot.music.MusicDashboard;
 import de.dragonbot.music.Queue;
@@ -26,7 +25,7 @@ public class DashboardReactionListener extends ListenerAdapter{
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {
 
 		if(!event.getUser().isBot()) {
-			ResultSet set = MySQL.getEntrys("channel_ID", "Dashboard", "guild_ID = " + event.getGuild().getIdLong());
+			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID", "Dashboard", "guild_ID = " + event.getGuild().getIdLong());
 
 			try {
 				if(set.next()) {

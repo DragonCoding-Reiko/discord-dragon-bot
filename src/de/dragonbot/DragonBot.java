@@ -39,7 +39,7 @@ import de.dragonbot.music.Queue;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
+//import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -47,13 +47,17 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 public class DragonBot {
 
 	public static DragonBot INSTANCE;
-
-	public String token;
-	public String link;
-	public String mysqlLink;
-	public String gameSQLLink;
-	public String mysqlUser;
-	public String mysqlPswd;
+	
+	public MySQL mainDB;
+	public MySQL shutdownDB;
+	public MySQL loopDB;
+	
+	public String token; //Discord Application Token
+	public String link; //Invite Link for the bot
+	public String mysqlLink; //Link to the Bot MySQL Database
+	public String gameSQLLink; //Link to the Game MySQL Database
+	public String mysqlUser; //
+	public String mysqlPswd; //Link to the Game MySQL Database
 	
 	public ShardManager shardMan;
 	private CommandManager cmdMan;
@@ -61,7 +65,7 @@ public class DragonBot {
 	public AudioPlayerManager audioPlayermanager;
 	public PlayerManager playerManager;
 
-	public static void main(String[] args) throws LoginException, IllegalArgumentException {
+	public static void main(String[] args){
 		try {
 			new DragonBot();
 		}
@@ -72,7 +76,8 @@ public class DragonBot {
 
 	public DragonBot() throws LoginException, IllegalArgumentException {
 		INSTANCE = this;
-
+		this.mainDB = new MySQL();
+		
 		JSONParser jsonParser = new JSONParser();
 		
 		try (FileReader reader = new FileReader("DONOTOPEN.json"))
@@ -95,7 +100,7 @@ public class DragonBot {
             e.printStackTrace();
         }
 		
-		MySQL.connect();
+		this.mainDB.connect();
 		SQLManager.onCreate();
 		
 		@SuppressWarnings("deprecation")
@@ -134,7 +139,8 @@ public class DragonBot {
 	}
 
 	public void shutdown() {
-
+		this.shutdownDB = new MySQL();
+		this.shutdownDB.connect();
 		new Thread(() -> {
 
 			String line = "";
@@ -183,8 +189,10 @@ public class DragonBot {
 	public boolean hasStarted = false;
 
 	public void runLoop() {
+		this.loopDB = new MySQL();
+		this.loopDB.connect();
 		this.loop = new Thread(() -> {
-
+			
 			long time = System.currentTimeMillis();
 
 			while(!shutdown) {
@@ -194,7 +202,7 @@ public class DragonBot {
 				}
 			}
 		});
-		this.loop.setName("Loop");
+		this.loop.setName("Every Second");
 		this.loop.start();
 	}
 
@@ -248,15 +256,15 @@ public class DragonBot {
 	}
 	
 	public void onShutdown(String message) {
-		TextChannel server;
+//		TextChannel server;
+		System.out.println(" ");
 		for(Guild guild : shardMan.getGuilds()) {
 			
-			System.out.println(" ");
 			System.out.println(guild.getName());
 			
-			if((server = guild.getDefaultChannel()) != null) {
-				server.sendMessage("Der Bot fährt jetzt herunter. \n" + "Grund: " +  message).queue();
-			}
+//			if((server = guild.getDefaultChannel()) != null) {
+//				server.sendMessage("Der Bot fährt jetzt herunter. \n" + "Grund: " +  message).queue();
+//			}
 		}
 		System.out.println(" ");
 		
@@ -276,7 +284,9 @@ public class DragonBot {
 			MusicDashboard.onShutdown();
 			shardMan.setStatus(OnlineStatus.OFFLINE);
 			shardMan.shutdown();
-			MySQL.disconnect();
+			this.mainDB.disconnect();
+			this.loopDB.disconnect();
+			this.shutdownDB.disconnect();
 
 			System.out.println("Bot is offline.");
 		}

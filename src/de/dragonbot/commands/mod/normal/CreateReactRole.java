@@ -3,8 +3,8 @@ package de.dragonbot.commands.mod.normal;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import de.dragonbot.DragonBot;
 import de.dragonbot.commands.ServerCommand;
-import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -38,7 +38,7 @@ public class CreateReactRole implements ServerCommand{
 
 						tc.addReactionById(messageID, emote).queue();
 
-						MySQL.newEntry("React_Roles", 
+						DragonBot.INSTANCE.mainDB.newEntry("React_Roles", 
 								"guild_ID, channel_ID, message_ID, emote, role_ID", 
 								channel.getGuild().getIdLong() + ", " + tc.getIdLong() + ", " + messageID + ", '" + emote.getId() + "', " + role.getIdLong());
 					}
@@ -47,7 +47,7 @@ public class CreateReactRole implements ServerCommand{
 
 						tc.addReactionById(messageID, emote).queue();
 
-						MySQL.newEntry("React_Roles", 
+						DragonBot.INSTANCE.mainDB.newEntry("React_Roles", 
 								"guild_ID, channel_ID, message_ID, emote, role_ID", 
 								channel.getGuild().getIdLong() + ", " + tc.getIdLong() + ", " + messageID + ", '" + emote + "', " + role.getIdLong());
 					}
@@ -74,7 +74,7 @@ public class CreateReactRole implements ServerCommand{
 
 							tc.removeReactionById(messageID, emote).queue();
 
-							MySQL.deleteEntry("React_Roles", 
+							DragonBot.INSTANCE.mainDB.deleteEntry("React_Roles", 
 									"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + tc.getIdLong() + " AND message_ID = " + messageID + " AND emote = '" + emote.getId() + "'");
 						}
 						else {
@@ -82,14 +82,14 @@ public class CreateReactRole implements ServerCommand{
 
 							tc.removeReactionById(messageID, emote).queue();
 
-							MySQL.deleteEntry("React_Roles", 
+							DragonBot.INSTANCE.mainDB.deleteEntry("React_Roles", 
 									"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + tc.getIdLong() + " AND message_ID = " + messageID + " AND emote = '" + emote + "'");
 						}
 					}
 					else if (!emotes.isEmpty() && args[4].equalsIgnoreCase("all")){
 						tc.clearReactionsById(messageID);
 
-						MySQL.deleteEntry("React_Roles", 
+						DragonBot.INSTANCE.mainDB.deleteEntry("React_Roles", 
 								"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + tc.getIdLong() + " AND message_ID = " + messageID);
 					}
 				}

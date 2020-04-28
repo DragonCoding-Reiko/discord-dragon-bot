@@ -12,7 +12,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 
 import de.dragonbot.DragonBot;
-import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -28,7 +27,7 @@ public class TrackScheduler extends AudioEventAdapter{
 	public void onPlayerPause(AudioPlayer player) {
 		long guildid = DragonBot.INSTANCE.playerManager.getGuildByPlayerHash(player.hashCode());
 
-		ResultSet isNP = MySQL.getEntrys("now_playing", "Music_Settings", 
+		ResultSet isNP = DragonBot.INSTANCE.mainDB.getEntrys("now_playing", "Music_Settings", 
 				"guild_ID = " + guildid);
 
 		try {
@@ -38,7 +37,7 @@ public class TrackScheduler extends AudioEventAdapter{
 					EmbedBuilder builder = new EmbedBuilder();
 					builder.setDescription("Musik pausiert.");
 
-					ResultSet set = MySQL.getEntrys("*", 
+					ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("*", 
 							"Music_Channel", 
 							"guild_ID = " + guildid);
 
@@ -65,7 +64,7 @@ public class TrackScheduler extends AudioEventAdapter{
 	public void onPlayerResume(AudioPlayer player) {
 		long guildid = DragonBot.INSTANCE.playerManager.getGuildByPlayerHash(player.hashCode());
 
-		ResultSet isNP = MySQL.getEntrys("now_playing", "Music_Settings", 
+		ResultSet isNP = DragonBot.INSTANCE.mainDB.getEntrys("now_playing", "Music_Settings", 
 				"guild_ID = " + guildid);
 
 		try {
@@ -75,7 +74,7 @@ public class TrackScheduler extends AudioEventAdapter{
 					EmbedBuilder builder = new EmbedBuilder();
 					builder.setDescription("Musik läuft weiter.");
 
-					ResultSet set = MySQL.getEntrys("*", 
+					ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("*", 
 							"Music_Channel", 
 							"guild_ID = " + guildid);
 
@@ -105,7 +104,7 @@ public class TrackScheduler extends AudioEventAdapter{
 	public void onTrackStart(AudioPlayer player, AudioTrack track) {
 		long guildid = DragonBot.INSTANCE.playerManager.getGuildByPlayerHash(player.hashCode());
 
-		ResultSet isNP = MySQL.getEntrys("now_playing", "Music_Settings", 
+		ResultSet isNP = DragonBot.INSTANCE.mainDB.getEntrys("now_playing", "Music_Settings", 
 				"guild_ID = " + guildid);
 
 		try {
@@ -163,7 +162,7 @@ public class TrackScheduler extends AudioEventAdapter{
 		AudioManager manager = guild.getAudioManager();
 		player.stopTrack();
 		queue.setFirst(true);
-		ResultSet set = MySQL.getEntrys("channel_ID",
+		ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID",
 				"Dashboard",
 				"guild_ID = " + guild.getIdLong());
 

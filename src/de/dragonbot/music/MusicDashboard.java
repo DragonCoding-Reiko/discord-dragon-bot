@@ -10,7 +10,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.random.SendAsEmbed;
-import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -20,7 +19,7 @@ public class MusicDashboard {
 
 	public static void onStartUp() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = MySQL.getEntrys("channel_ID",
+			ResultSet set = DragonBot.INSTANCE.loopDB.getEntrys("channel_ID",
 					"Dashboard",
 					"guild_ID = " + guild.getIdLong());
 
@@ -39,7 +38,7 @@ public class MusicDashboard {
 
 	public static void onShutdown() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = MySQL.getEntrys("channel_ID",
+			ResultSet set = DragonBot.INSTANCE.shutdownDB.getEntrys("channel_ID",
 					"Dashboard",
 					"guild_ID = " + guild.getIdLong());
 			try {
@@ -63,7 +62,7 @@ public class MusicDashboard {
 			}
 		}); 
 	}
-
+	
 	public static void onAFK(TextChannel channel) {
 		List<Message> messages = new ArrayList<>();
 
@@ -73,7 +72,7 @@ public class MusicDashboard {
 
 		channel.purgeMessages(messages);
 
-		MySQL.deleteEntry("Messages", 
+		DragonBot.INSTANCE.loopDB.deleteEntry("Messages", 
 				"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong());
 
 		SendAsEmbed.sendEmbed(channel, "✅ BOT ONLINE - No music playing. \n" 
@@ -82,7 +81,7 @@ public class MusicDashboard {
 
 	public static void onStartPlaying(Guild guild) {
 
-			ResultSet set = MySQL.getEntrys("channel_ID", "Dashboard",
+			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID", "Dashboard",
 										"guild_ID = " + guild.getIdLong());
 
 			Long guildid = guild.getIdLong();
@@ -110,7 +109,7 @@ public class MusicDashboard {
 						Message msg2 = sendNowPlaying(channel, player, queue);
 						Message msg3 = sendVolume(channel, player);
 
-						MySQL.newEntry("Messages", "guild_ID, channel_ID, message_ID_1, message_ID_2, message_ID_3",
+						DragonBot.INSTANCE.mainDB.newEntry("Messages", "guild_ID, channel_ID, message_ID_1, message_ID_2, message_ID_3",
 								guildid + ", " + channelid + ", " + msg1.getIdLong() + ", " + msg2.getIdLong() + ", " + msg3.getIdLong());
 					}
 				} catch (SQLException e) {
@@ -126,7 +125,7 @@ public class MusicDashboard {
 			MusicController controller = DragonBot.INSTANCE.playerManager.getController(guildid);
 			AudioPlayer player = controller.getPlayer();
 			if(player.getPlayingTrack() != null) {
-				ResultSet set = MySQL.getEntrys("channel_ID",
+				ResultSet set = DragonBot.INSTANCE.loopDB.getEntrys("channel_ID",
 						"Dashboard",
 						"guild_ID = " + guild.getIdLong());
 
@@ -269,7 +268,7 @@ public class MusicDashboard {
 			counter++;
 		}
 
-		ResultSet set = MySQL.getEntrys("message_ID_1", "Messages", 
+		ResultSet set = DragonBot.INSTANCE.loopDB.getEntrys("message_ID_1", "Messages", 
 				"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong());
 
 		try {
@@ -318,7 +317,7 @@ public class MusicDashboard {
 						+ "**__Loop:__** " + (isSingleLoop ? "Single Song" : (isLoop ? "All" : "No Loop")));
 		playingMsg.setFooter("---------------------------------------------------------------------------------------------------------------");
 
-		ResultSet set = MySQL.getEntrys("message_ID_2", "Messages", 
+		ResultSet set = DragonBot.INSTANCE.loopDB.getEntrys("message_ID_2", "Messages", 
 				"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong());
 
 		try {
@@ -339,7 +338,7 @@ public class MusicDashboard {
 		volumeMsg.setDescription("" + volume);
 		volumeMsg.setFooter("---------------------------------------------------------------------------------------------------------------");
 
-		ResultSet set = MySQL.getEntrys("message_ID_3", "Messages", 
+		ResultSet set = DragonBot.INSTANCE.loopDB.getEntrys("message_ID_3", "Messages", 
 				"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong());
 
 		try {

@@ -4,8 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.EnumSet;
 
+import de.dragonbot.DragonBot;
 import de.dragonbot.commands.ServerCommand;
-import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Guild;
@@ -51,7 +51,7 @@ public class VCHub implements ServerCommand{
 			}
 			vc.getManager().setParent(cat).complete();
 
-			MySQL.newEntry("Voice_Channel_Hubs", 
+			DragonBot.INSTANCE.mainDB.newEntry("Voice_Channel_Hubs", 
 					"guild_ID, category_ID, channel_ID", 
 					guild.getIdLong() + ", " + cat.getIdLong() + ", " + vc.getIdLong());
 		}
@@ -60,13 +60,13 @@ public class VCHub implements ServerCommand{
 
 			VoiceChannel vc = guild.getVoiceChannelsByName(args[2], true).get(0);
 
-			ResultSet set = MySQL.getEntrys("category_ID, channel_ID", 
+			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("category_ID, channel_ID", 
 					"Voice_Channel_Hubs", 
 					"guild_ID = " + guild.getIdLong() + " AND channel_ID = " + vc.getIdLong());
 
 			try {
 				while(set.next()) {
-					MySQL.deleteEntry("Voice_Channel_Hubs", 
+					DragonBot.INSTANCE.mainDB.deleteEntry("Voice_Channel_Hubs", 
 							"guild_ID = " + guild.getIdLong() + " AND channel_ID = " + vc.getIdLong());
 				}
 			} catch (SQLException e) { e.printStackTrace(); }

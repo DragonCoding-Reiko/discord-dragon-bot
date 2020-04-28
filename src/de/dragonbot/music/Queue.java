@@ -8,8 +8,8 @@ import java.util.List;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
+import de.dragonbot.DragonBot;
 import de.dragonbot.commands.random.SendAsEmbed;
-import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -101,7 +101,7 @@ public class Queue {
 			}
 			this.controller.getPlayer().playTrack(track);
 
-			ResultSet set = MySQL.getEntrys("channel_ID", "Dashboard",
+			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID", "Dashboard",
 					"guild_ID = " + guild.getIdLong());
 			
 			try {
@@ -133,7 +133,7 @@ public class Queue {
 			}
 			this.controller.getPlayer().playTrack(track);
 
-			ResultSet set = MySQL.getEntrys("channel_ID", "Dashboard",
+			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID", "Dashboard",
 					"guild_ID = " + guild.getIdLong());
 			
 			try {
@@ -160,7 +160,7 @@ public class Queue {
 				}
 			}
 
-			ResultSet set = MySQL.getEntrys("channel_ID", "Dashboard",
+			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID", "Dashboard",
 					"guild_ID = " + guild.getIdLong());
 			
 			try {

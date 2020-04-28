@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.ServerCommand;
-import de.dragonbot.manage.MySQL;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
@@ -34,7 +33,7 @@ public class Stats implements ServerCommand{
 		if(m.hasPermission(Permission.ADMINISTRATOR)) {
 			String[] args = message.getContentDisplay().substring(subString).split(" ");
 			Guild guild = channel.getGuild();
-			ResultSet set = MySQL.getEntrys("*", 
+			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("*", 
 					"Stats_Channels", 
 					"guild_ID = " + guild.getIdLong());
 
@@ -48,7 +47,7 @@ public class Stats implements ServerCommand{
 
 					category.getManager().putPermissionOverride(override.getRole(), null, EnumSet.of(Permission.VOICE_CONNECT)).queue();
 
-					MySQL.newEntry("Stats_Channels", 
+					DragonBot.INSTANCE.mainDB.newEntry("Stats_Channels", 
 							"guild_ID, category_ID", 
 							guild.getIdLong() + ", " + category.getIdLong());
 
@@ -61,7 +60,7 @@ public class Stats implements ServerCommand{
 
 					if(args.length == 2) {
 						if(args[1].equalsIgnoreCase("delete")) {
-							MySQL.deleteEntry("Stats_Channels", 
+							DragonBot.INSTANCE.mainDB.deleteEntry("Stats_Channels", 
 									"guild_ID = " + guild.getIdLong());
 
 							cat.getChannels().forEach(chan -> {
@@ -152,9 +151,7 @@ public class Stats implements ServerCommand{
 
 	public static void checkStats() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = MySQL.getEntrys("category_ID", 
-					"Stats_Channels", 
-					"guild_ID = " + guild.getIdLong());
+			ResultSet set = DragonBot.INSTANCE.loopDB.getEntrys("category_ID", "Stats_Channels", "guild_ID = " + guild.getIdLong());
 
 			try {
 				if(set.next()) {
@@ -169,7 +166,7 @@ public class Stats implements ServerCommand{
 
 	public static void onStartUP() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = MySQL.getEntrys("category_ID",
+			ResultSet set = DragonBot.INSTANCE.loopDB.getEntrys("category_ID",
 					"Stats_Channels",
 					"guild_ID = " + guild.getIdLong());
 
@@ -192,7 +189,7 @@ public class Stats implements ServerCommand{
 
 	public static void onShutdown() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = MySQL.getEntrys("category_ID", 
+			ResultSet set = DragonBot.INSTANCE.shutdownDB.getEntrys("category_ID", 
 					"Stats_Channels", 
 					"guild_ID = " + guild.getIdLong());
 

@@ -10,13 +10,12 @@ import de.dragonbot.DragonBot;
 
 public class MySQL {
     
-    private static Connection conn;
-    private static Statement stmt;
-    private static Statement resultStmt;
+    private Connection conn;
+    private Statement stmt;
 
 
-    public static void connect() {
-        conn = null;
+    public void connect() {
+        this.conn = null;
         
     
         try { 
@@ -24,22 +23,21 @@ public class MySQL {
             String user = DragonBot.INSTANCE.mysqlUser;
             String pswd = DragonBot.INSTANCE.mysqlPswd;
             
-            conn  = DriverManager.getConnection(url, user, pswd);
+            this.conn  = DriverManager.getConnection(url, user, pswd);
             System.out.println("MySQL verbunden.");
             
-            stmt = conn.createStatement();
-            resultStmt = conn.createStatement();
+            this.stmt = this.conn.createStatement();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         
     }
     
-    public static void disconnect() {
+    public void disconnect() {
         try {
             if(conn != null) {
-            	stmt.close();
-                conn.close();
+            	this.stmt.close();
+            	this.conn.close();
                 System.out.println("MySQL getrennt.");
             }
         } catch (SQLException  e) {
@@ -47,22 +45,22 @@ public class MySQL {
         }
     }
     
-    public static void newTable(String name, String primarykey, String fields) {
+    public void newTable(String name, String primarykey, String fields) {
 		String sql = "CREATE TABLE IF NOT EXISTS " + name + "(" + primarykey + " NOT NULL PRIMARY KEY AUTO_INCREMENT, " + fields + ")";
 
 		try {
-			stmt.execute(sql);
+			this.stmt.execute(sql);
 		} catch (SQLException e) {
 			System.out.println(sql);
 			System.out.println(e.getMessage());
 		}
 	}
 
-	public static void newEntry(String name, String fields, String values) {
+	public void newEntry(String name, String fields, String values) {
 		String sql = "INSERT INTO " + name + "(" + fields + ") VALUES(" + values + ")";
 
 		try {
-			stmt.executeUpdate(sql);
+			this.stmt.executeUpdate(sql);
 
 		} catch (SQLException e) {
 			System.out.println(sql);
@@ -70,11 +68,11 @@ public class MySQL {
 		}
 	}
 
-	public static void updateEntry(String name, String setter, String where) {
+	public void updateEntry(String name, String setter, String where) {
 		String sql = "UPDATE " + name + " SET " + setter + " WHERE " + where;
 
 		try {
-			stmt.executeUpdate(sql);
+			this.stmt.executeUpdate(sql);
 
 		} catch (SQLException e) {
 			System.out.println(sql);
@@ -82,11 +80,11 @@ public class MySQL {
 		}
 	}
 
-	public static ResultSet getAllEntrys(String fields, String name) {
+	public ResultSet getAllEntrys(String fields, String name) {
 		String sql = "SELECT " + fields + " FROM " + name;
 
 		try {
-			return resultStmt.executeQuery(sql);
+			return this.stmt.executeQuery(sql);
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -95,11 +93,11 @@ public class MySQL {
 		return null;
 	}
 
-	public static ResultSet getEntrys(String fields, String name, String where) {
+	public ResultSet getEntrys(String fields, String name, String where) {
 		String sql = "SELECT " + fields + " FROM " + name + " WHERE " + where;
-
+		
 		try {
-			return resultStmt.executeQuery(sql);
+			return this.stmt.executeQuery(sql);
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -108,11 +106,11 @@ public class MySQL {
 		return null;
 	}
 
-	public static void deleteEntry(String name, String where) {
+	public void deleteEntry(String name, String where) {
 		String sql = "DELETE FROM " + name + " WHERE " + where;
 
 		try {
-			stmt.executeUpdate(sql);
+			this.stmt.executeUpdate(sql);
 
 		} catch (SQLException e) {
 			System.out.println(sql);
