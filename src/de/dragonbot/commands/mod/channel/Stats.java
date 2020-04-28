@@ -86,9 +86,9 @@ public class Stats implements ServerCommand{
 
 	public static void fillCategory(Category cat) {
 		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
-		SimpleDateFormat df2 = new SimpleDateFormat("dd.MM.YYYY");
+		SimpleDateFormat df2 = new SimpleDateFormat("EEEE, dd.MM.YYYY");
 		cat.createVoiceChannel("🕗  Uhrzeit: " + df.format(Calendar.getInstance().getTime()) + "Uhr").queue();
-		cat.createVoiceChannel("📅  Datum: " + df2.format(Calendar.getInstance().getTime())).queue();
+		cat.createVoiceChannel("📅  " + df2.format(Calendar.getInstance().getTime())).queue();
 
 		List<Member> members = cat.getGuild().getMembers();
 		int member = 0;
@@ -121,14 +121,14 @@ public class Stats implements ServerCommand{
 	}
 
 	public static void updateCategory(Category cat) {
-		if(cat.getChannels().size() == 5) {
+		if(cat.getChannels().size() == 4) {
 			sync(cat);
 			List<GuildChannel> channels = cat.getChannels();
 			SimpleDateFormat df = new SimpleDateFormat("HH:mm");
-			SimpleDateFormat df2 = new SimpleDateFormat("EEEE dd.MM.YYYY");
+			SimpleDateFormat df2 = new SimpleDateFormat("EEEE, dd.MM.YYYY");
 
 			channels.get(0).getManager().setName("🕗  Uhrzeit: " + df.format(Calendar.getInstance().getTime()) + "Uhr").queue();
-			channels.get(1).getManager().setName("📅  Datum: " + df2.format(Calendar.getInstance().getTime())).queue();
+			channels.get(1).getManager().setName("📅  " + df2.format(Calendar.getInstance().getTime())).queue();
 			List<Member> members = cat.getGuild().getMembers();
 			int member = 0;
 			for(Member memb : members) {
@@ -145,7 +145,7 @@ public class Stats implements ServerCommand{
 					}
 				}
 			}
-			channels.get(3).getManager().setName("🔘  Online User: " + online + " / " + member).queue();
+			channels.get(2).getManager().setName("🔘  Online User: " + online + " / " + member).queue();
 		}
 	}
 

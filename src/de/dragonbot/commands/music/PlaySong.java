@@ -1,6 +1,8 @@
 package de.dragonbot.commands.music;
 
 import java.awt.Color;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 
@@ -21,8 +23,18 @@ public class PlaySong implements ServerCommand{
 
 	@Override
 	public void performCommand(Member m, TextChannel channel, Message message, int subString) {
-		message.delete().queue();
-
+		
+		ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID", "Dashboard", "guild_ID = " + channel.getGuild().getIdLong());
+		try {
+			if(!set.next()) {
+				message.delete().queue();
+			} else if (set.getLong("channel_ID") != channel.getIdLong()) {
+				message.delete().queue();
+			}
+		} catch (SQLException e) {
+			e.getMessage();
+		}
+		
 		String[] args = message.getContentDisplay().substring(subString).split(" ");
 
 		if(args.length > 1) {

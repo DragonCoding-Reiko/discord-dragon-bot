@@ -152,18 +152,19 @@ public class DragonBot {
 					shutdownMessage = line.substring((line.indexOf(" ") + 1));
 
 					if(line.toLowerCase().startsWith("exit")) {
-
+						System.out.println(" ");
 						onShutdown(shutdownMessage);
 						reader.close();
 						break;
 					}
 					else if(line.toLowerCase().startsWith("info")) {
+						System.out.println(" ");
 						for(Guild guild : shardMan.getGuilds()) {
 							System.out.println(guild.getName() + " " + guild.getIdLong());
 						}
 					}
 					else if(line.toLowerCase().startsWith("restart")) {
-
+						System.out.println(" ");
 						onShutdown(shutdownMessage);
 						try {
 							new DragonBot();
@@ -257,7 +258,6 @@ public class DragonBot {
 	
 	public void onShutdown(String message) {
 //		TextChannel server;
-		System.out.println(" ");
 		for(Guild guild : shardMan.getGuilds()) {
 			
 			System.out.println(guild.getName());
