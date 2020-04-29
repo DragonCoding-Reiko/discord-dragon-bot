@@ -41,7 +41,7 @@ public class VoiceListener extends ListenerAdapter{
 	private void onJoin(VoiceChannel channelJoined, Member memb) {
 		Boolean isHubVC = false;
 
-		ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("category_ID, channel_ID", 
+		ResultSet set = DragonBot.INSTANCE.listenerDB.getEntrys("category_ID, channel_ID", 
 				"Voice_Channel_Hubs", 
 				"guild_ID = " + channelJoined.getGuild().getIdLong());
 

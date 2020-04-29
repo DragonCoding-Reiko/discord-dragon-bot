@@ -8,7 +8,7 @@ public class SQLManager {
 
 		//Settings - Databases for several settings of a guild
 		DragonBot.INSTANCE.mainDB.newTable("Guilds", "ID INTEGER", 
-				"guild_ID BIGINT, joined BOOLEAN");
+				"guild_Name TEXT, guild_ID BIGINT, joined BOOLEAN");
 		
 		DragonBot.INSTANCE.mainDB.newTable("Settings", "ID INTEGER", 
 				"guild_ID BIGINT, delete_Message BOOLEAN");

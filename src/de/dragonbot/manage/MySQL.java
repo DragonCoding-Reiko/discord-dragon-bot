@@ -33,6 +33,25 @@ public class MySQL {
         
     }
     
+    public void connectGame() {
+        this.conn = null;
+        
+    
+        try { 
+            String url = DragonBot.INSTANCE.gameSQLLink;
+            String user = DragonBot.INSTANCE.mysqlUser;
+            String pswd = DragonBot.INSTANCE.mysqlPswd;
+            
+            this.conn  = DriverManager.getConnection(url, user, pswd);
+            System.out.println("Game MySQL verbunden.");
+            
+            this.stmt = this.conn.createStatement();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+    }
+    
     public void disconnect() {
         try {
             if(conn != null) {
@@ -43,6 +62,17 @@ public class MySQL {
         } catch (SQLException  e) {
             e.printStackTrace();
         }
+    }
+    
+    public ResultSet execute(String sql) {
+		try {
+			return this.stmt.executeQuery(sql);
+		} catch (SQLException e) {
+			System.out.println(sql);
+			System.out.println(e.getMessage());
+		}
+		
+		return null;
     }
     
     public void newTable(String name, String primarykey, String fields) {

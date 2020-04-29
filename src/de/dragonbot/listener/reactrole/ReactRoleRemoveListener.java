@@ -32,7 +32,7 @@ public class ReactRoleRemoveListener extends ListenerAdapter{
 			long channelid = channel.getIdLong();
 
 
-			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("role_ID", 
+			ResultSet set = DragonBot.INSTANCE.listenerDB.getEntrys("role_ID", 
 					"React_Roles", 
 					"guild_ID = " + guildid + " AND channel_ID = " + channelid + " AND message_ID = " + messageID + " AND emote = '" + emote + "'");
 

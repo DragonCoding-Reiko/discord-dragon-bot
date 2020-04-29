@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>DragonBot</groupId>
   <artifactId>DragonBot</artifactId>
-  <version>0.0.2-ALPHA</version>
+  <version>0.0.5</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>

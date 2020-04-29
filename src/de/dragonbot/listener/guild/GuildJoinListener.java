@@ -13,15 +13,15 @@ public class GuildJoinListener extends ListenerAdapter{
 
 	private void setDefault(Guild guild) {
 		//Setting DBs
-		DragonBot.INSTANCE.mainDB.newEntry("Guilds", 
-				"guild_ID, joined", 
-				guild.getIdLong() + ", " + true);
+		DragonBot.INSTANCE.listenerDB.newEntry("Guilds", 
+				"guild_Name, guild_ID, joined", 
+				guild.getName() + ", " + guild.getIdLong() + ", " + true);
 		
-		DragonBot.INSTANCE.mainDB.newEntry("Settings", 
+		DragonBot.INSTANCE.listenerDB.newEntry("Settings", 
 				"guild_ID, delete_Message", 
 				guild.getIdLong() + ", " + false);
 
-		DragonBot.INSTANCE.mainDB.newEntry("Music_Settings", 
+		DragonBot.INSTANCE.listenerDB.newEntry("Music_Settings", 
 				"guild_ID, now_playing", 
 				guild.getIdLong() + ", " + false);
 

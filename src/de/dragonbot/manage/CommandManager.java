@@ -3,6 +3,8 @@ package de.dragonbot.manage;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.dragonbot.commands.ServerCommand;
+import de.dragonbot.commands.aikakone.GetPlayerScores;
+import de.dragonbot.commands.aikakone.GetTop3;
 import de.dragonbot.commands.help.Help;
 import de.dragonbot.commands.mod.channel.NPChannel;
 import de.dragonbot.commands.mod.channel.Stats;
@@ -70,6 +72,10 @@ public class CommandManager {
 
 		//BDOCommands - Informations and Utilities for BDO
 
+		
+		//Aikakone - Utility Commands for the Unity Game
+		this.commands.put("top3", new GetTop3());
+		this.commands.put("ps", new GetPlayerScores());
 
 	}
 
