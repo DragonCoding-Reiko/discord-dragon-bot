@@ -25,6 +25,7 @@ import de.dragonbot.listener.dashboard.DashboardReactionListener;
 import de.dragonbot.listener.dashboard.DashboardTextListener;
 import de.dragonbot.listener.guild.GuildJoinListener;
 import de.dragonbot.listener.guild.GuildLeaveListener;
+import de.dragonbot.listener.guild.GuildNameListener;
 import de.dragonbot.listener.member.MemberJoinListener;
 import de.dragonbot.listener.member.MemberLeaveListener;
 import de.dragonbot.listener.reactrole.ReactRoleAddListener;
@@ -51,6 +52,9 @@ public class DragonBot {
 	public MySQL mainDB;
 	public MySQL shutdownDB;
 	public MySQL loopDB;
+	public MySQL listenerDB;
+	
+	public MySQL gameDB;
 	
 	public String token; //Discord Application Token
 	public String link; //Invite Link for the bot
@@ -77,6 +81,11 @@ public class DragonBot {
 	public DragonBot() throws LoginException, IllegalArgumentException {
 		INSTANCE = this;
 		this.mainDB = new MySQL();
+		this.loopDB = new MySQL();
+		this.listenerDB = new MySQL();
+		this.shutdownDB = new MySQL();
+		
+		this.gameDB = new MySQL();
 		
 		JSONParser jsonParser = new JSONParser();
 		
@@ -101,6 +110,11 @@ public class DragonBot {
         }
 		
 		this.mainDB.connect();
+		this.loopDB.connect();
+		this.listenerDB.connect();
+		this.shutdownDB.connect();
+		
+		this.gameDB.connectGame();
 		SQLManager.onCreate();
 		
 		@SuppressWarnings("deprecation")
@@ -127,6 +141,7 @@ public class DragonBot {
 		
 		builder.addEventListeners(new DashboardReactionListener());
 		builder.addEventListeners(new DashboardTextListener());
+		builder.addEventListeners(new GuildNameListener());
 
 		shardMan = builder.build();
 		System.out.println("Status: Online.");
@@ -139,8 +154,6 @@ public class DragonBot {
 	}
 
 	public void shutdown() {
-		this.shutdownDB = new MySQL();
-		this.shutdownDB.connect();
 		new Thread(() -> {
 
 			String line = "";
@@ -190,8 +203,6 @@ public class DragonBot {
 	public boolean hasStarted = false;
 
 	public void runLoop() {
-		this.loopDB = new MySQL();
-		this.loopDB.connect();
 		this.loop = new Thread(() -> {
 			
 			long time = System.currentTimeMillis();
@@ -267,7 +278,6 @@ public class DragonBot {
 //			}
 		}
 		System.out.println(" ");
-		
 		shutdown = true;
 		if(shardMan != null) {
 			for(Guild guild : shardMan.getGuilds()) {
@@ -286,6 +296,9 @@ public class DragonBot {
 			shardMan.shutdown();
 			this.mainDB.disconnect();
 			this.loopDB.disconnect();
+			this.listenerDB.disconnect();
+			this.gameDB.disconnect();
+			
 			this.shutdownDB.disconnect();
 
 			System.out.println("Bot is offline.");

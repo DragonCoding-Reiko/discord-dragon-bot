@@ -25,7 +25,7 @@ public class DashboardReactionListener extends ListenerAdapter{
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {
 
 		if(!event.getUser().isBot()) {
-			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID", "Dashboard", "guild_ID = " + event.getGuild().getIdLong());
+			ResultSet set = DragonBot.INSTANCE.listenerDB.getEntrys("channel_ID", "Dashboard", "guild_ID = " + event.getGuild().getIdLong());
 
 			try {
 				if(set.next()) {
@@ -48,7 +48,7 @@ public class DashboardReactionListener extends ListenerAdapter{
 					}
 					return;
 				}
-			} catch (SQLException e) { e.printStackTrace(); }
+			} catch (SQLException e) { e.getMessage(); }
 		}
 	}
 

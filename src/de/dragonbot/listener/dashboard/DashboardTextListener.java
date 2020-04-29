@@ -68,7 +68,7 @@ public class DashboardTextListener extends ListenerAdapter{
 	}
 
 	public Long dashboard(Guild guild) {
-		ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID", "Dashboard", 
+		ResultSet set = DragonBot.INSTANCE.listenerDB.getEntrys("channel_ID", "Dashboard", 
 				"guild_ID = " + guild.getIdLong());
 		
 		long channelid = 0l;
