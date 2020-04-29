@@ -1,0 +1,6 @@
+# Dont upload the token
+DONOTOPEN.json
+
+#Also don't upload the databases
+/*.db
+
