@@ -1,17 +1,14 @@
 package de.dragonbot.commands.music;
 
 import java.awt.Color;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.ServerCommand;
+import de.dragonbot.manage.Utils;
 import de.dragonbot.music.AudioLoadResult;
 import de.dragonbot.music.MusicController;
-import de.dragonbot.music.MusicUtil;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -24,16 +21,14 @@ public class PlaySong implements ServerCommand{
 	@Override
 	public void performCommand(Member m, TextChannel channel, Message message, int subString) {
 		
-		ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID", "Dashboard", "guild_ID = " + channel.getGuild().getIdLong());
-		try {
-			if(!set.next()) {
-				message.delete().queue();
-			} else if (set.getLong("channel_ID") != channel.getIdLong()) {
-				message.delete().queue();
-			}
-		} catch (SQLException e) {
-			e.getMessage();
+		TextChannel dashboard = Utils.getDashboardChannel(channel.getGuild());
+
+		if(dashboard == null) {
+			message.delete().queue();
+		} else if (dashboard != channel) {
+			message.delete().queue();
 		}
+
 		
 		String[] args = message.getContentDisplay().substring(subString).split(" ");
 
@@ -48,7 +43,7 @@ public class PlaySong implements ServerCommand{
 
 					manager.openAudioConnection(vc);
 
-					MusicUtil.updateChannel(channel);
+					Utils.setMusicChannel(channel);
 
 					StringBuilder strBuilder = new StringBuilder();
 					for(int i = 1; i < args.length; i++) strBuilder.append(args[i] + " ");
@@ -59,27 +54,19 @@ public class PlaySong implements ServerCommand{
 						url = "ytsearch: " + url;
 					}
 
+					controller.SetLoadedFromInternalPlaylist(false);
 					apm.loadItem(url, new AudioLoadResult(controller));
 				}
 				else {
-					EmbedBuilder builder = new EmbedBuilder();
-					builder.setDescription("Bitte joine einem VoiceChannel, um diesen Command zu benutzen.");
-					builder.setColor(Color.decode("#2980b9"));
-					channel.sendMessage(builder.build()).queue();
+					Utils.sendEmbed("ERROR", "Bitte joine einem VoiceChannel, um diesen Command zu benutzen.", channel, 3l, new Color(0xff0000));
 				}
 			}
 			else {
-				EmbedBuilder builder = new EmbedBuilder();
-				builder.setDescription("Bitte joine einem VoiceChannel, um diesen Command zu benutzen.");
-				builder.setColor(Color.decode("#2980b9"));
-				channel.sendMessage(builder.build()).queue();
+				Utils.sendEmbed("ERROR", "Bitte joine einem VoiceChannel, um diesen Command zu benutzen.", channel, 3l, new Color(0xff0000));
 			}
 		}
 		else {
-			EmbedBuilder builder = new EmbedBuilder();
-			builder.setDescription("Bitte nutze `#d play <url/suchbegriff>`");
-			builder.setColor(Color.decode("#2980b9"));
-			channel.sendMessage(builder.build()).queue();
+			Utils.sendEmbed("ERROR", "Falsche Syntax! \n" + "Bitte nutze `#d play <url/suchbegriff>`", channel, 3l, new Color(0xff0000));
 		}
 
 	}

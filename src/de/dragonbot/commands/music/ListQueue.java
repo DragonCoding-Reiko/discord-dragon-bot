@@ -1,14 +1,13 @@
 package de.dragonbot.commands.music;
 
-import java.awt.Color;
 import java.util.List;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.ServerCommand;
+import de.dragonbot.manage.Utils;
 import de.dragonbot.music.MusicController;
-import de.dragonbot.music.MusicUtil;
 import de.dragonbot.music.Queue;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -37,7 +36,7 @@ public class ListQueue implements ServerCommand{
 				Queue queue = controller.getQueue();
 				List<AudioTrack> tracks = queue.getQueueList();
 
-				EmbedBuilder builder = new EmbedBuilder().setColor(Color.decode("#8c14fc"));
+				EmbedBuilder builder = new EmbedBuilder();
 
 				if(!tracks.isEmpty()) {
 					int trackCount = tracks.size();
@@ -58,7 +57,7 @@ public class ListQueue implements ServerCommand{
 				}else {
 					builder.setDescription("**Queue:** \n" + "Keine Tracks in der Queue");
 				}
-				MusicUtil.sendEmbed(controller.getGuild().getIdLong(), builder);
+				Utils.sendEmbed(builder, Utils.getMusicChannel(controller.getGuild().getIdLong()), 20l, null);
 			}	
 		}
 

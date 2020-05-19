@@ -13,7 +13,11 @@ public class GuildNameListener extends ListenerAdapter{
 		Long guild_ID = event.getGuild().getIdLong();
 		String guild_Name = event.getNewName();
 	
-		DragonBot.INSTANCE.listenerDB.updateEntry("Guilds", "guild_Name = " + guild_Name, "guild_ID = " + guild_ID);		
+		String sql_UPDATE_GuildName = "UPDATE `Guilds` "
+									+ "SET `guild_Name`='" + guild_Name + "'"
+									+ "WHERE guild_ID = " + guild_ID;
+		
+		DragonBot.INSTANCE.listenerDB.execute(sql_UPDATE_GuildName);
 	
 	}
 }

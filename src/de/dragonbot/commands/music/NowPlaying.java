@@ -1,6 +1,6 @@
 package de.dragonbot.commands.music;
 
-import java.util.concurrent.TimeUnit;
+import java.awt.Color;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -8,6 +8,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.ServerCommand;
+import de.dragonbot.manage.Utils;
 import de.dragonbot.music.MusicController;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -54,10 +55,10 @@ public class NowPlaying implements ServerCommand{
 
 			builder.setDescription(isStream ? "Live (Stream)" : time);
 
-			channel.sendMessage(builder.build()).complete().delete().queueAfter(10, TimeUnit.SECONDS);
+			Utils.sendEmbed(builder, channel, 10, null);
 		}
 		else {
-			channel.sendMessage("Es wird kein Song gespielt.").complete().delete().queueAfter(10, TimeUnit.SECONDS);
+			Utils.sendEmbed("ERROR", "Es wird kein Song gespielt.", channel, 10, new Color(0xff0000));
 		}
 	}
 

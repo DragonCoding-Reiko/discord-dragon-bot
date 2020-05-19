@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.ServerCommand;
+import de.dragonbot.manage.Utils;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
@@ -33,9 +34,12 @@ public class Stats implements ServerCommand{
 		if(m.hasPermission(Permission.ADMINISTRATOR)) {
 			String[] args = message.getContentDisplay().substring(subString).split(" ");
 			Guild guild = channel.getGuild();
-			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("*", 
-					"Stats_Channels", 
-					"guild_ID = " + guild.getIdLong());
+			
+			String sql_SELECT_StatsCategory = "SELECT `category_ID` "
+					   					  + "FROM `Stats_Channels` "
+					   					  + "WHERE guild_ID = " + guild.getIdLong();
+			
+			ResultSet set = DragonBot.INSTANCE.mainDB.getData(sql_SELECT_StatsCategory);
 
 			try {
 				if(!set.next()) {
@@ -47,9 +51,10 @@ public class Stats implements ServerCommand{
 
 					category.getManager().putPermissionOverride(override.getRole(), null, EnumSet.of(Permission.VOICE_CONNECT)).queue();
 
-					DragonBot.INSTANCE.mainDB.newEntry("Stats_Channels", 
-							"guild_ID, category_ID", 
-							guild.getIdLong() + ", " + category.getIdLong());
+					String sql_INSERT_NewStatsChannel = "INSERT INTO `Stats_Channels`(`guild_ID`, `category_ID`) "
+							    			          + "VALUES (" + guild.getIdLong() + ", " + category.getIdLong() +")";
+					
+					DragonBot.INSTANCE.mainDB.execute(sql_INSERT_NewStatsChannel);
 
 					fillCategory(category);
 				}
@@ -60,8 +65,11 @@ public class Stats implements ServerCommand{
 
 					if(args.length == 2) {
 						if(args[1].equalsIgnoreCase("delete")) {
-							DragonBot.INSTANCE.mainDB.deleteEntry("Stats_Channels", 
-									"guild_ID = " + guild.getIdLong());
+							
+							String sql_REMOVE_StatsChannel = "DELETE FROM `Stats_Channels` "
+														   + "WHERE guild_ID = " + guild.getIdLong();
+							
+							DragonBot.INSTANCE.mainDB.execute(sql_REMOVE_StatsChannel);
 
 							cat.getChannels().forEach(chan -> {
 								chan.delete().complete();
@@ -79,7 +87,7 @@ public class Stats implements ServerCommand{
 					fillCategory(cat);
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				Utils.printError(e, null);
 			}
 		}
 	}
@@ -151,7 +159,12 @@ public class Stats implements ServerCommand{
 
 	public static void checkStats() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = DragonBot.INSTANCE.loopDB.getEntrys("category_ID", "Stats_Channels", "guild_ID = " + guild.getIdLong());
+			
+			String sql_SELECT_StatsCategory = "SELECT `category_ID` "
+ 					  						+ "FROM `Stats_Channels` "
+ 					  						+ "WHERE guild_ID = " + guild.getIdLong();
+			
+			ResultSet set = DragonBot.INSTANCE.loopDB.getData(sql_SELECT_StatsCategory);
 
 			try {
 				if(set.next()) {
@@ -159,16 +172,19 @@ public class Stats implements ServerCommand{
 					Stats.updateCategory(guild.getCategoryById(catid));
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				Utils.printError(e, sql_SELECT_StatsCategory);
 			}
 		}); 
 	}
 
 	public static void onStartUP() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = DragonBot.INSTANCE.loopDB.getEntrys("category_ID",
-					"Stats_Channels",
-					"guild_ID = " + guild.getIdLong());
+			
+			String sql_SELECT_StatsCategory = "SELECT `category_ID` "
+					  						+ "FROM `Stats_Channels` "
+					  						+ "WHERE guild_ID = " + guild.getIdLong();
+			
+			ResultSet set = DragonBot.INSTANCE.loopDB.getData(sql_SELECT_StatsCategory);
 
 			try {
 				if(set.next()) {
@@ -182,16 +198,18 @@ public class Stats implements ServerCommand{
 					fillCategory(cat);
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				Utils.printError(e, sql_SELECT_StatsCategory);
 			}
 		}); 
 	}
 
 	public static void onShutdown() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = DragonBot.INSTANCE.shutdownDB.getEntrys("category_ID", 
-					"Stats_Channels", 
-					"guild_ID = " + guild.getIdLong());
+			String sql_SELECT_StatsCategory = "SELECT `category_ID` "
+											+ "FROM `Stats_Channels` "
+											+ "WHERE guild_ID = " + guild.getIdLong();
+
+			ResultSet set = DragonBot.INSTANCE.loopDB.getData(sql_SELECT_StatsCategory);
 
 			try {
 				if(set.next()) {
@@ -208,7 +226,7 @@ public class Stats implements ServerCommand{
 					offline.getManager().putPermissionOverride(override.getRole(), null, EnumSet.of(Permission.VOICE_CONNECT)).queue();
 				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				Utils.printError(e, sql_SELECT_StatsCategory);
 			}
 		}); 
 	}

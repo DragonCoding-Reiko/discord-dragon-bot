@@ -1,12 +1,10 @@
 package de.dragonbot.listener.dashboard;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.music.ChangeVolume;
+import de.dragonbot.manage.Utils;
 import de.dragonbot.music.MusicController;
 import de.dragonbot.music.MusicDashboard;
 import de.dragonbot.music.Queue;
@@ -25,30 +23,30 @@ public class DashboardReactionListener extends ListenerAdapter{
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {
 
 		if(!event.getUser().isBot()) {
-			ResultSet set = DragonBot.INSTANCE.listenerDB.getEntrys("channel_ID", "Dashboard", "guild_ID = " + event.getGuild().getIdLong());
+			TextChannel dashboard = Utils.getDashboardChannel(event.getGuild());
+		
 
-			try {
-				if(set.next()) {
-					if(event.getTextChannel().getIdLong() == set.getLong("channel_ID")) {
-						String emote = event.getReactionEmote().getEmoji();
-						String[] emotes = new String[] { "🔉", "🔊", "🔄", "🔀", "⏹️", "⏮️", "⏸️", "⏭️", "🔁", "🔂", "❌", "❓"};
+			if(dashboard != null) {
+				if(event.getTextChannel() == dashboard) {
+					String emote = event.getReactionEmote().getEmoji();
+					String[] emotes = new String[] { "🔉", "🔊", "🔄", "🔀", "⏹️", "⏮️", "⏸️", "⏭️", "🔁", "🔂", "❌", "❓"};
 
-						int index = 1;
-						for(String str : emotes) {
-							if(str.equals(emote)) {
-								Member memb = event.getMember();
-								callAction(index, event.getGuild(), event.getTextChannel(), memb);
+					int index = 1;
+					for(String str : emotes) {
+						if(str.equals(emote)) {
+							Member memb = event.getMember();
+							callAction(index, event.getGuild(), event.getTextChannel(), memb);
 
-								event.getReaction().removeReaction(memb.getUser()).queue();
-								break;
-							}
-
-							index++;
+							event.getReaction().removeReaction(memb.getUser()).queue();
+							break;
 						}
+
+						index++;
 					}
-					return;
 				}
-			} catch (SQLException e) { e.getMessage(); }
+				return;
+			}
+
 		}
 	}
 
@@ -107,7 +105,7 @@ public class DashboardReactionListener extends ListenerAdapter{
 			queue.singleLoop();
 			break;
 		case 11:
-			queue.deleteTrackFromQueue(0);
+			queue.removeCurrentFromQueue(player.getPlayingTrack());
 			MusicDashboard.updateQueue(channel, controller, player);
 			break;
 		case 12:
@@ -124,7 +122,7 @@ public class DashboardReactionListener extends ListenerAdapter{
 		builder.setTitle("**Dashboard-Help: **");
 		builder.setFooter("Provided by dragonriderworld");
 		
-		builder.addField(":x:", "Deletes the next track.", true);
+		builder.addField(":x:", "Removes the current track from the queue.", true);
 		builder.addField("❓", "Help comes.", true);
 		
 		builder.addField("", "", false);

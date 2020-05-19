@@ -3,10 +3,10 @@ package de.dragonbot.commands.aikakone;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.concurrent.TimeUnit;
 
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.ServerCommand;
+import de.dragonbot.manage.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -19,12 +19,12 @@ public class GetTop3 implements ServerCommand {
 		
 		message.delete().queue();
 		
-		String sql = "SELECT playerName, score, date "
-				   + "FROM highscores "
-				   + "ORDER BY score DESC "
-				   + "LIMIT 3";
+		String sql_SELECT_PlayerScores = "SELECT playerName, score, date "
+				   					   + "FROM highscores "
+				   					   + "ORDER BY score DESC "
+				   					   + "LIMIT 3";
 		
-		ResultSet set = DragonBot.INSTANCE.gameDB.execute(sql);
+		ResultSet set = DragonBot.INSTANCE.gameDB.getData(sql_SELECT_PlayerScores);
 		EmbedBuilder builder = new EmbedBuilder();
 		SimpleDateFormat format = new SimpleDateFormat("dd.MM.YYYY HH:mm");
 		
@@ -42,12 +42,11 @@ public class GetTop3 implements ServerCommand {
 				i++;
 			}
 		} catch (SQLException e) { 
-			System.out.println(sql);
-			System.out.println(e.getMessage());
+			Utils.printError(e, sql_SELECT_PlayerScores);
 		}
 		
 		builder.addField("**Thank you!**", "Thanks to all who play our game :) \n Even if you're not on the TOP 3 keep going, maybe you will soon. ", false);
 		
-		channel.sendMessage(builder.build()).complete().delete().queueAfter(10, TimeUnit.SECONDS);
+		Utils.sendEmbed(builder, channel, 10l, null);
 	}
 }

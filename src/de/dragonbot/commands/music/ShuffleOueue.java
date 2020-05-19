@@ -1,9 +1,8 @@
 package de.dragonbot.commands.music;
 
-import java.util.concurrent.TimeUnit;
-
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.ServerCommand;
+import de.dragonbot.manage.Utils;
 import de.dragonbot.music.MusicController;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -24,7 +23,7 @@ public class ShuffleOueue implements ServerCommand{
 				MusicController controller = DragonBot.INSTANCE.playerManager.getController(vc.getGuild().getIdLong());
 
 				controller.getQueue().shuffle();
-				channel.sendMessage(":twisted_rightwards_arrows: Playlist geshuffled.").complete().delete().queueAfter(10, TimeUnit.SECONDS);
+				Utils.sendEmbed("INFO", ":twisted_rightwards_arrows: Playlist geshuffled.", channel, 10l, null);
 			}
 		}
 	}

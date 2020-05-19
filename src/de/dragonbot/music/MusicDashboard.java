@@ -1,5 +1,6 @@
 package de.dragonbot.music;
 
+import java.awt.Color;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import de.dragonbot.DragonBot;
-import de.dragonbot.commands.random.SendAsEmbed;
+import de.dragonbot.manage.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -19,46 +20,28 @@ public class MusicDashboard {
 
 	public static void onStartUp() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = DragonBot.INSTANCE.loopDB.getEntrys("channel_ID",
-					"Dashboard",
-					"guild_ID = " + guild.getIdLong());
+			TextChannel channel = Utils.getDashboardChannel(guild);
 
-			try {
-				if(set.next()) {
-					long channelID = set.getLong("channel_ID");
-					TextChannel channel = guild.getTextChannelById(channelID);
-
-					onAFK(channel);
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
+			if(channel != null) {
+				onAFK(channel);
 			}
 		}); 
 	}
 
 	public static void onShutdown() {
 		DragonBot.INSTANCE.shardMan.getGuilds().forEach(guild -> {
-			ResultSet set = DragonBot.INSTANCE.shutdownDB.getEntrys("channel_ID",
-					"Dashboard",
-					"guild_ID = " + guild.getIdLong());
-			try {
-				if(set.next()) {
-					long channelID = set.getLong("channel_ID");
-					TextChannel channel = guild.getTextChannelById(channelID);
+			TextChannel channel = Utils.getDashboardChannel(guild);
 
-					List<Message> messages = new ArrayList<>();
+			if(channel != null) {
+				List<Message> messages = new ArrayList<>();
 
-					for(Message message : channel.getIterableHistory().cache(false)) { 
-						messages.add(message);
-					}
-
-					channel.purgeMessages(messages);
-
-					SendAsEmbed.sendEmbed(channel, "🔴 BOT offline - Sorry, we're trying to change this state. \n"
-							+ "...but the squirrels keep munching on our cables.");
+				for(Message message : channel.getIterableHistory().cache(false)) { 
+					messages.add(message);
 				}
-			} catch (SQLException e) {
-				e.printStackTrace();
+
+				channel.purgeMessages(messages);
+				
+				Utils.sendEmbed("🔴 BOT offline", "Sorry, we're trying to change this state. \n" + "...but the squirrels keep munching on our cables.", channel, 0l, new Color(0xff0000));
 			}
 		}); 
 	}
@@ -72,48 +55,45 @@ public class MusicDashboard {
 
 		channel.purgeMessages(messages);
 
-		DragonBot.INSTANCE.loopDB.deleteEntry("Messages", 
-				"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong());
+		String sql_REMOVE_Messages = "DELETE FROM `Messages` "
+								   + "WHERE guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong();
+		
+		DragonBot.INSTANCE.loopDB.execute(sql_REMOVE_Messages);
 
-		SendAsEmbed.sendEmbed(channel, "✅ BOT ONLINE - No music playing. \n" 
-				+ "Use #d play to start a song.");
+		Utils.sendEmbed("✅ BOT ONLINE", "No music playing. \n" + "Use #d play to start a song.", channel, 0l, new Color(0xff0000));
+
 	}
 
 	public static void onStartPlaying(Guild guild) {
 
-			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID", "Dashboard",
-										"guild_ID = " + guild.getIdLong());
-
 			Long guildid = guild.getIdLong();
-			Long channelid = null;
+			TextChannel channel = Utils.getDashboardChannel(guild);
 			
-			MusicController controller = DragonBot.INSTANCE.playerManager.getController(guildid);
-			Queue queue = controller.getQueue();
-
-			if(queue.isFirst()) {
-				queue.setFirst(false);
-				try {
-					if(set.next()) {
-						channelid = set.getLong("channel_ID");
-						TextChannel channel = guild.getTextChannelById(channelid);
-						AudioPlayer player = controller.getPlayer();
-						List<Message> messages = new ArrayList<>();
-
-						for(Message message : channel.getIterableHistory().cache(false)) { 
-							messages.add(message);
+			if(channel != null) {
+				MusicController controller = DragonBot.INSTANCE.playerManager.getController(guildid);
+				Queue queue = controller.getQueue();
+	
+				if(queue.isFirst()) {
+					queue.setFirst(false);
+						if(channel != null) {
+							AudioPlayer player = controller.getPlayer();
+							List<Message> messages = new ArrayList<>();
+	
+							for(Message message : channel.getIterableHistory().cache(false)) { 
+								messages.add(message);
+							}
+	
+							channel.purgeMessages(messages);
+	
+							Message msg1 = sendQueue(channel, controller, player, queue);
+							Message msg2 = sendNowPlaying(channel, player, queue);
+							Message msg3 = sendVolume(channel, player);
+	
+							String sql_INSERT_NewMessages = "INSERT INTO `Messages`(`guild_ID`, `channel_ID`, `message_ID_1`, `message_ID_2`, `message_ID_3`) "
+														  + "VALUES (" + guildid + ", " + channel.getIdLong() + ", " + msg1.getIdLong() + ", " + msg2.getIdLong() + ", " + msg3.getIdLong() + ")";
+							
+							DragonBot.INSTANCE.mainDB.execute(sql_INSERT_NewMessages);
 						}
-
-						channel.purgeMessages(messages);
-
-						Message msg1 = sendQueue(channel, controller, player, queue);
-						Message msg2 = sendNowPlaying(channel, player, queue);
-						Message msg3 = sendVolume(channel, player);
-
-						DragonBot.INSTANCE.mainDB.newEntry("Messages", "guild_ID, channel_ID, message_ID_1, message_ID_2, message_ID_3",
-								guildid + ", " + channelid + ", " + msg1.getIdLong() + ", " + msg2.getIdLong() + ", " + msg3.getIdLong());
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
 				}
 			}
 	}
@@ -124,24 +104,16 @@ public class MusicDashboard {
 			Long guildid = guild.getIdLong();
 			MusicController controller = DragonBot.INSTANCE.playerManager.getController(guildid);
 			AudioPlayer player = controller.getPlayer();
+			
 			if(player.getPlayingTrack() != null) {
-				ResultSet set = DragonBot.INSTANCE.loopDB.getEntrys("channel_ID",
-						"Dashboard",
-						"guild_ID = " + guild.getIdLong());
+				TextChannel channel = Utils.getDashboardChannel(guild);
+				
+				if(channel != null) {
+					Queue queue = controller.getQueue();
 
-				try {
-					if(set.next()) {
-
-						TextChannel channel = guild.getTextChannelById(set.getLong("channel_ID"));
-
-						Queue queue = controller.getQueue();
-
-						updateNowPlaying(channel, player, queue);
-						updateQueue(channel, controller, player);
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
+					updateNowPlaying(channel, player, queue);
 				}
+
 			}
 		}); 
 	}
@@ -268,15 +240,18 @@ public class MusicDashboard {
 			counter++;
 		}
 
-		ResultSet set = DragonBot.INSTANCE.loopDB.getEntrys("message_ID_1", "Messages", 
-				"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong());
+		String sql_SELECT_Message1 = "SELECT `message_ID_1` "
+								   + "FROM `Messages` "
+								   + "WHERE guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong();
+		
+		ResultSet set = DragonBot.INSTANCE.loopDB.getData(sql_SELECT_Message1);
 
 		try {
 			if(set.next()) {
 				channel.editMessageById(set.getLong("message_ID_1"), queueMsg.build()).complete();
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Utils.printError(e, null);
 		}
 	}
 
@@ -317,15 +292,18 @@ public class MusicDashboard {
 						+ "**__Loop:__** " + (isSingleLoop ? "Single Song" : (isLoop ? "All" : "No Loop")));
 		playingMsg.setFooter("---------------------------------------------------------------------------------------------------------------");
 
-		ResultSet set = DragonBot.INSTANCE.loopDB.getEntrys("message_ID_2", "Messages", 
-				"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong());
+		String sql_SELECT_Message2 = "SELECT `message_ID_2` "
+				   + "FROM `Messages` "
+				   + "WHERE guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong();
+
+		ResultSet set = DragonBot.INSTANCE.loopDB.getData(sql_SELECT_Message2);
 
 		try {
 			if(set.next()) {
 				channel.editMessageById(set.getLong("message_ID_2"), playingMsg.build()).queue();
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Utils.printError(e, null);
 		}
 	}
 
@@ -338,15 +316,18 @@ public class MusicDashboard {
 		volumeMsg.setDescription("" + volume);
 		volumeMsg.setFooter("---------------------------------------------------------------------------------------------------------------");
 
-		ResultSet set = DragonBot.INSTANCE.loopDB.getEntrys("message_ID_3", "Messages", 
-				"guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong());
+		String sql_SELECT_Message3 = "SELECT `message_ID_3` "
+				   + "FROM `Messages` "
+				   + "WHERE guild_ID = " + channel.getGuild().getIdLong() + " AND channel_ID = " + channel.getIdLong();
+
+		ResultSet set = DragonBot.INSTANCE.loopDB.getData(sql_SELECT_Message3);
 
 		try {
 			if(set.next()) {
 				channel.editMessageById(set.getLong("message_ID_3"), volumeMsg.build()).queue();
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Utils.printError(e, null);
 		}
 	}
 }

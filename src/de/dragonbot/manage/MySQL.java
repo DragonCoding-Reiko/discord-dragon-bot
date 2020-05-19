@@ -14,12 +14,18 @@ public class MySQL {
     private Statement stmt;
 
 
-    public void connect() {
+    public void connect(String database) {
         this.conn = null;
         
-    
         try { 
-            String url = DragonBot.INSTANCE.mysqlLink;
+            String url = DragonBot.INSTANCE.mysqlLink 
+            		   + database
+            		   + "?autoReconnect=true"
+            		   + "&useUnicode=true"
+            		   + "&characterEncoding=UTF-8"
+            		   + "&useJDBCCompliantTimezoneShift=true"
+            		   + "&useLegacyDatetimeCode=false"
+            		   + "&serverTimezone=UTC";
             String user = DragonBot.INSTANCE.mysqlUser;
             String pswd = DragonBot.INSTANCE.mysqlPswd;
             
@@ -28,30 +34,11 @@ public class MySQL {
             
             this.stmt = this.conn.createStatement();
         } catch (SQLException e) {
-            e.printStackTrace();
+        	Utils.printError(e, null);
         }
         
     }
-    
-    public void connectGame() {
-        this.conn = null;
-        
-    
-        try { 
-            String url = DragonBot.INSTANCE.gameSQLLink;
-            String user = DragonBot.INSTANCE.mysqlUser;
-            String pswd = DragonBot.INSTANCE.mysqlPswd;
-            
-            this.conn  = DriverManager.getConnection(url, user, pswd);
-            System.out.println("Game MySQL verbunden.");
-            
-            this.stmt = this.conn.createStatement();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        
-    }
-    
+
     public void disconnect() {
         try {
             if(conn != null) {
@@ -60,92 +47,37 @@ public class MySQL {
                 System.out.println("MySQL getrennt.");
             }
         } catch (SQLException  e) {
-            e.printStackTrace();
+        	Utils.printError(e, null);
         }
     }
-    
-    public ResultSet execute(String sql) {
+
+    public ResultSet getData(String sql) {
 		try {
 			return this.stmt.executeQuery(sql);
-		} catch (SQLException e) {
-			System.out.println(sql);
-			System.out.println(e.getMessage());
+		} catch (SQLException | NullPointerException e1) {
+			Utils.printError(e1, sql);
+			
+			try {
+				return this.stmt.executeQuery(sql);
+			} catch (SQLException | NullPointerException e2) {
+				Utils.printError(e2, sql);
+			}
 		}
 		
 		return null;
     }
     
-    public void newTable(String name, String primarykey, String fields) {
-		String sql = "CREATE TABLE IF NOT EXISTS " + name + "(" + primarykey + " NOT NULL PRIMARY KEY AUTO_INCREMENT, " + fields + ")";
-
+    public void execute(String sql) {
 		try {
 			this.stmt.execute(sql);
-		} catch (SQLException e) {
-			System.out.println(sql);
-			System.out.println(e.getMessage());
+		} catch (SQLException | NullPointerException e) {
+			Utils.printError(e, sql);
+			try {
+				this.stmt.execute(sql);
+			} catch (SQLException | NullPointerException e1) {
+				Utils.printError(e, sql);
+			}
 		}
 	}
-
-	public void newEntry(String name, String fields, String values) {
-		String sql = "INSERT INTO " + name + "(" + fields + ") VALUES(" + values + ")";
-
-		try {
-			this.stmt.executeUpdate(sql);
-
-		} catch (SQLException e) {
-			System.out.println(sql);
-			System.out.println(e.getMessage());
-		}
-	}
-
-	public void updateEntry(String name, String setter, String where) {
-		String sql = "UPDATE " + name + " SET " + setter + " WHERE " + where;
-
-		try {
-			this.stmt.executeUpdate(sql);
-
-		} catch (SQLException e) {
-			System.out.println(sql);
-			System.out.println(e.getMessage());
-		}
-	}
-
-	public ResultSet getAllEntrys(String fields, String name) {
-		String sql = "SELECT " + fields + " FROM " + name;
-
-		try {
-			return this.stmt.executeQuery(sql);
-
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-
-		return null;
-	}
-
-	public ResultSet getEntrys(String fields, String name, String where) {
-		String sql = "SELECT " + fields + " FROM " + name + " WHERE " + where;
-		
-		try {
-			return this.stmt.executeQuery(sql);
-
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-
-		return null;
-	}
-
-	public void deleteEntry(String name, String where) {
-		String sql = "DELETE FROM " + name + " WHERE " + where;
-
-		try {
-			this.stmt.executeUpdate(sql);
-
-		} catch (SQLException e) {
-			System.out.println(sql);
-			System.out.println(e.getMessage());
-		}
-	}
-    
+  
 }

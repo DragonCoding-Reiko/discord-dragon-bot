@@ -10,7 +10,7 @@ import de.dragonbot.commands.mod.channel.NPChannel;
 import de.dragonbot.commands.mod.channel.Stats;
 import de.dragonbot.commands.mod.channel.VCHub;
 import de.dragonbot.commands.mod.normal.Clear;
-import de.dragonbot.commands.mod.normal.CreateReactRole;
+import de.dragonbot.commands.mod.normal.ReactRole;
 import de.dragonbot.commands.mod.normal.UserInfo;
 import de.dragonbot.commands.music.BackSong;
 import de.dragonbot.commands.music.ChangeVolume;
@@ -19,6 +19,7 @@ import de.dragonbot.commands.music.LoopSong;
 import de.dragonbot.commands.music.NowPlaying;
 import de.dragonbot.commands.music.PauseSong;
 import de.dragonbot.commands.music.PlaySong;
+import de.dragonbot.commands.music.PlaylistCommands;
 import de.dragonbot.commands.music.ShuffleOueue;
 import de.dragonbot.commands.music.SkipSong;
 import de.dragonbot.commands.music.StopSong;
@@ -50,7 +51,7 @@ public class CommandManager {
 
 		//ModeratorCommands - Advanced Server Preferences
 		this.commands.put("clear", new Clear());
-		this.commands.put("reactrole", new CreateReactRole());
+		this.commands.put("reactrole", new ReactRole());
 		this.commands.put("uinfo", new UserInfo());
 
 		//ModeratorCommands - Create Server Rooms
@@ -69,6 +70,9 @@ public class CommandManager {
 		this.commands.put("shuffle", new ShuffleOueue());
 		this.commands.put("skip", new SkipSong());
 		this.commands.put("stop", new StopSong());
+		
+		//PlaylistCommands - Manage your Playlists
+		this.commands.put("playlist", new PlaylistCommands());
 
 		//BDOCommands - Informations and Utilities for BDO
 

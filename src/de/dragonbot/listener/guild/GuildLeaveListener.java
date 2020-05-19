@@ -12,26 +12,72 @@ public class GuildLeaveListener extends ListenerAdapter{
 	}
 
 	private void removeGuild(Guild guild) {
-		DragonBot.INSTANCE.listenerDB.updateEntry("Guilds", "joined = " + false, "guild_ID = " + guild.getIdLong());
 		
-		DragonBot.INSTANCE.listenerDB.deleteEntry("Settings", "guild_ID = " + guild.getIdLong());
-		DragonBot.INSTANCE.listenerDB.deleteEntry("Music_Settings", "guild_ID = " + guild.getIdLong());
+		String sql_UPDATE_GuildJoinedStatus = "UPDATE `Guilds` "
+											+ "SET `joined`=" + false + " "
+											+ "WHERE guild_ID = " + guild.getIdLong();
+		
+		String sql_REMOVE_Settings = "DELETE FROM `Settings` "
+								   + "WHERE guild_ID = " + guild.getIdLong();
+		
+		String sql_REMOVE_MusicSettings = "DELETE FROM `Music_Settings` "
+				   				        + "WHERE guild_ID = " + guild.getIdLong();
+		
+//		String sql_REMOVE_AdminRole = "DELETE FROM `Admin_Role` "
+//				   				    + "WHERE guild_ID = " + guild.getIdLong();
+//		
+//		String sql_REMOVE_ModRole = "DELETE FROM `Mod_Role` "
+//								  + "WHERE guild_ID = " + guild.getIdLong();
+//		
+//		String sql_REMOVE_DJRole = "DELETE FROM `DJ_Role` "
+//								 + "WHERE guild_ID = " + guild.getIdLong();
+//		
+//		String sql_REMOVE_BDOSettingsRole = "DELETE FROM `BDO_Settings_Role` "
+//				   				   		  + "WHERE guild_ID = " + guild.getIdLong();
+//		
+//		String sql_REMOVE_BDONoteRole = "DELETE FROM `BDO_Note_Role` "
+//								      + "WHERE guild_ID = " + guild.getIdLong();
+//		
+//		String sql_REMOVE_RegularRole = "DELETE FROM `Regular_Role` "
+//				   				      + "WHERE guild_ID = " + guild.getIdLong();
+		
+		String sql_REMOVE_ReactRoles = "DELETE FROM `React_Roles` "
+				   				     + "WHERE guild_ID = " + guild.getIdLong();
+		
+		String sql_REMOVE_StatsChannels = "DELETE FROM `Stats_Channels` "
+				   				        + "WHERE guild_ID = " + guild.getIdLong();
+		
+		String sql_REMOVE_VCHub = "DELETE FROM `Voice_Channel_Hubs` "
+				   				+ "WHERE guild_ID = " + guild.getIdLong();
+		
+		String sql_REMOVE_MusicChannel = "DELETE FROM `Music_Channel` "
+				   				       + "WHERE guild_ID = " + guild.getIdLong();
+		
+		String sql_REMOVE_Dashboard = "DELETE FROM `Dashboard` "
+								    + "WHERE guild_ID = " + guild.getIdLong();
+		
+		String sql_REMOVE_Messages = "DELETE FROM `Messages` "
+				   				   + "WHERE guild_ID = " + guild.getIdLong();
+		
+		DragonBot.INSTANCE.listenerDB.execute(sql_UPDATE_GuildJoinedStatus);
+		
+		DragonBot.INSTANCE.listenerDB.execute(sql_REMOVE_Settings);
+		DragonBot.INSTANCE.listenerDB.execute(sql_REMOVE_MusicSettings);
 
-		//DragonBot.INSTANCE.listenerDB.deleteEntry("Admin_Role", "guild_ID = " + guild.getIdLong());
-		//DragonBot.INSTANCE.listenerDB.deleteEntry("Mod_Role", "guild_ID = " + guild.getIdLong());
-		//DragonBot.INSTANCE.listenerDB.deleteEntry("DJ_Role", "guild_ID = " + guild.getIdLong());
-		//DragonBot.INSTANCE.listenerDB.deleteEntry("BDO_Settings_Role", "guild_ID = " + guild.getIdLong());
-		//DragonBot.INSTANCE.listenerDB.deleteEntry("BDO_Note_Role", "guild_ID = " + guild.getIdLong());
-		//DragonBot.INSTANCE.listenerDB.deleteEntry("Regular_Role", "guild_ID = " + guild.getIdLong());
+//		DragonBot.INSTANCE.listenerDB.execute(sql_REMOVE_AdminRole);
+//		DragonBot.INSTANCE.listenerDB.execute(sql_REMOVE_ModRole);
+//		DragonBot.INSTANCE.listenerDB.execute(sql_REMOVE_DJRole);
+//		DragonBot.INSTANCE.listenerDB.execute(sql_REMOVE_BDOSettingsRole);
+//		DragonBot.INSTANCE.listenerDB.execute(sql_REMOVE_BDONoteRole);
+//		DragonBot.INSTANCE.listenerDB.execute(sql_REMOVE_RegularRole);
 
-		DragonBot.INSTANCE.listenerDB.deleteEntry("React_Roles", "guild_ID = " + guild.getIdLong());
-		DragonBot.INSTANCE.listenerDB.deleteEntry("Stats_Channels", "guild_ID = " + guild.getIdLong());
-		DragonBot.INSTANCE.listenerDB.deleteEntry("Voice_Channel_Hubs", "guild_ID = " + guild.getIdLong());
+		DragonBot.INSTANCE.listenerDB.execute(sql_REMOVE_ReactRoles);
+		DragonBot.INSTANCE.listenerDB.execute(sql_REMOVE_StatsChannels);
+		DragonBot.INSTANCE.listenerDB.execute(sql_REMOVE_VCHub);
 
-		DragonBot.INSTANCE.listenerDB.deleteEntry("Music_Channel", "guild_ID = " + guild.getIdLong());
-		DragonBot.INSTANCE.listenerDB.deleteEntry("Dashboard_Reactions", "guild_ID = " + guild.getIdLong());
-		DragonBot.INSTANCE.listenerDB.deleteEntry("Dashboard", "guild_ID = " + guild.getIdLong());
-		DragonBot.INSTANCE.listenerDB.deleteEntry("Messages", "guild_ID = " + guild.getIdLong());
+		DragonBot.INSTANCE.listenerDB.execute(sql_REMOVE_MusicChannel);
+		DragonBot.INSTANCE.listenerDB.execute(sql_REMOVE_Dashboard);
+		DragonBot.INSTANCE.listenerDB.execute(sql_REMOVE_Messages);
 	}
 	
 }

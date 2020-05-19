@@ -1,8 +1,9 @@
 package de.dragonbot.commands.help;
 
-import java.util.concurrent.TimeUnit;
+import java.awt.Color;
 
 import de.dragonbot.commands.ServerCommand;
+import de.dragonbot.manage.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -120,11 +121,8 @@ public class Help implements ServerCommand{
 				builder.addField("**Error**", "No Such Command: " + args[1], false);
 				break;
 			}
-		}
-
-		builder.setColor(0xf42cbf4);
-		builder.setFooter("Bot provided by dragonriderworld#3233");
-		channel.sendMessage(builder.build()).complete().delete().queueAfter(20, TimeUnit.SECONDS);
+		}	
+		Utils.sendEmbed(builder, channel, 30l, new Color(0xf42cbf4));
 
 	}
 
@@ -136,6 +134,8 @@ public class Help implements ServerCommand{
 		builder.addField("__**Music**__", "`play`, `stop`, `pause`, `skip`, `back`, `queue`, `loop`, `np`, `shuffle` \n", false);
 		builder.addField("__**Moderator**__", "`clear`, `reactrole`, `uinfo`, `npchannel`, `stats`, `vchub` \n", false);
 
+		builder.setFooter("Bot provided by dragonriderworld#3233");
+		
 		return builder;
 	}
 

@@ -17,7 +17,7 @@ public class SendAsEmbed implements ServerCommand{
 		sendEmbed(channel, mess);
 	}
 
-	public static void sendEmbed(TextChannel channel, String message) {
+	private void sendEmbed(TextChannel channel, String message) {
 		EmbedBuilder builder = new EmbedBuilder();
 
 		builder.setDescription(message);

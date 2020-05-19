@@ -12,6 +12,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 
 import de.dragonbot.DragonBot;
+import de.dragonbot.manage.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -27,8 +28,11 @@ public class TrackScheduler extends AudioEventAdapter{
 	public void onPlayerPause(AudioPlayer player) {
 		long guildid = DragonBot.INSTANCE.playerManager.getGuildByPlayerHash(player.hashCode());
 
-		ResultSet isNP = DragonBot.INSTANCE.mainDB.getEntrys("now_playing", "Music_Settings", 
-				"guild_ID = " + guildid);
+		String sql_SELECT_MusicSettings = "SELECT `now_playing` "
+										+ "FROM `Music_Settings` "
+										+ "WHERE guild_ID = " + guildid;
+		
+		ResultSet isNP = DragonBot.INSTANCE.mainDB.getData(sql_SELECT_MusicSettings);
 
 		try {
 			if(isNP.next()) {
@@ -37,26 +41,26 @@ public class TrackScheduler extends AudioEventAdapter{
 					EmbedBuilder builder = new EmbedBuilder();
 					builder.setDescription("Musik pausiert.");
 
-					ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("*", 
-							"Music_Channel", 
-							"guild_ID = " + guildid);
+					String sql_SELECT_MusicChannel = "SELECT `channel_ID` "
+												   + "FROM `Music_Channel` "
+												   + "WHERE guild_ID = " + guildid;
+					
+					ResultSet set = DragonBot.INSTANCE.mainDB.getData(sql_SELECT_MusicChannel);
 
-					try {
-						if(set.next()) {
-							long channelid = set.getLong("channel_ID");
-							Guild guild;
-							if((guild = DragonBot.INSTANCE.shardMan.getGuildById(guildid)) != null) {
-								TextChannel channel;
-								if((channel = guild.getTextChannelById(channelid)) != null) {
-									pauseMessage = channel.sendMessage(builder.build()).complete();
-								}
+					if(set.next()) {
+						long channelid = set.getLong("channel_ID");
+						Guild guild;
+						if((guild = DragonBot.INSTANCE.shardMan.getGuildById(guildid)) != null) {
+							TextChannel channel;
+							if((channel = guild.getTextChannelById(channelid)) != null) {
+								pauseMessage = channel.sendMessage(builder.build()).complete();
 							}
 						}
-					} catch (SQLException e) { }
+					}
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Utils.printError(e, null);
 		}
 	}
 
@@ -64,8 +68,11 @@ public class TrackScheduler extends AudioEventAdapter{
 	public void onPlayerResume(AudioPlayer player) {
 		long guildid = DragonBot.INSTANCE.playerManager.getGuildByPlayerHash(player.hashCode());
 
-		ResultSet isNP = DragonBot.INSTANCE.mainDB.getEntrys("now_playing", "Music_Settings", 
-				"guild_ID = " + guildid);
+		String sql_SELECT_MusicSettings = "SELECT `now_playing` "
+				+ "FROM `Music_Settings` "
+				+ "WHERE guild_ID = " + guildid;
+
+		ResultSet isNP = DragonBot.INSTANCE.mainDB.getData(sql_SELECT_MusicSettings);
 
 		try {
 			if(isNP.next()) {
@@ -74,28 +81,28 @@ public class TrackScheduler extends AudioEventAdapter{
 					EmbedBuilder builder = new EmbedBuilder();
 					builder.setDescription("Musik läuft weiter.");
 
-					ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("*", 
-							"Music_Channel", 
-							"guild_ID = " + guildid);
+					String sql_SELECT_MusicChannel = "SELECT `channel_ID` "
+							   + "FROM `Music_Channel` "
+							   + "WHERE guild_ID = " + guildid;
 
-					try {
-						if(set.next()) {
-							long channelid = set.getLong("channel_ID");
-							Guild guild;
-							if((guild = DragonBot.INSTANCE.shardMan.getGuildById(guildid)) != null) {
-								TextChannel channel;
-								if((channel = guild.getTextChannelById(channelid)) != null) {
-									pauseMessage.delete().queue();
+					ResultSet set = DragonBot.INSTANCE.mainDB.getData(sql_SELECT_MusicChannel);
 
-									channel.sendMessage(builder.build()).complete().delete().  queueAfter(5, TimeUnit.SECONDS);
-								}
+					if(set.next()) {
+						long channelid = set.getLong("channel_ID");
+						Guild guild;
+						if((guild = DragonBot.INSTANCE.shardMan.getGuildById(guildid)) != null) {
+							TextChannel channel;
+							if((channel = guild.getTextChannelById(channelid)) != null) {
+								pauseMessage.delete().queue();
+
+								channel.sendMessage(builder.build()).complete().delete().  queueAfter(5, TimeUnit.SECONDS);
 							}
 						}
-					} catch (SQLException e) { }
+					}
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Utils.printError(e, null);
 		}
 	}
 
@@ -104,8 +111,11 @@ public class TrackScheduler extends AudioEventAdapter{
 	public void onTrackStart(AudioPlayer player, AudioTrack track) {
 		long guildid = DragonBot.INSTANCE.playerManager.getGuildByPlayerHash(player.hashCode());
 
-		ResultSet isNP = DragonBot.INSTANCE.mainDB.getEntrys("now_playing", "Music_Settings", 
-				"guild_ID = " + guildid);
+		String sql_SELECT_MusicSettings = "SELECT `now_playing` "
+				+ "FROM `Music_Settings` "
+				+ "WHERE guild_ID = " + guildid;
+
+		ResultSet isNP = DragonBot.INSTANCE.mainDB.getData(sql_SELECT_MusicSettings);
 
 		try {
 			if(isNP.next()) {
@@ -127,14 +137,14 @@ public class TrackScheduler extends AudioEventAdapter{
 					builder.addField(info.author, "[" + info.title + "](" + url + ")", false);
 					builder.addField("Länge", info.isStream ? "Live(Stream)" : (stunden > 0 ? stunden + "h " : "") + minuten + "min " + sekunden + "s", true);
 
-					MusicUtil.sendEmbed(guildid, builder);
+					Utils.sendEmbed(builder, Utils.getMusicChannel(guildid), 5l, null);
 				} else {
 					MusicDashboard.onStartPlaying(DragonBot.INSTANCE.shardMan.getGuildById(guildid));
 					
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Utils.printError(e, null);
 		}
 
 	}
@@ -162,19 +172,10 @@ public class TrackScheduler extends AudioEventAdapter{
 		AudioManager manager = guild.getAudioManager();
 		player.stopTrack();
 		queue.setFirst(true);
-		ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID",
-				"Dashboard",
-				"guild_ID = " + guild.getIdLong());
 
-		try {
-			if(set.next()) {
-				long channelID = set.getLong("channel_ID");
-				TextChannel channel = guild.getTextChannelById(channelID);
-
-				MusicDashboard.onAFK(channel);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		TextChannel dashboard = Utils.getDashboardChannel(guild);
+		if(dashboard != null) {
+			MusicDashboard.onAFK(dashboard);
 		}
 
 		manager.closeAudioConnection();

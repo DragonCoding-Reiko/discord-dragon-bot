@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.dragonbot.DragonBot;
+import de.dragonbot.manage.Utils;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
@@ -41,9 +42,11 @@ public class VoiceListener extends ListenerAdapter{
 	private void onJoin(VoiceChannel channelJoined, Member memb) {
 		Boolean isHubVC = false;
 
-		ResultSet set = DragonBot.INSTANCE.listenerDB.getEntrys("category_ID, channel_ID", 
-				"Voice_Channel_Hubs", 
-				"guild_ID = " + channelJoined.getGuild().getIdLong());
+		String sql_SELECT_VCHub = "SELECT `category_ID`, `channel_ID` "
+								+ "FROM `Voice_Channel_Hubs` "
+								+ "WHERE guild_ID = " + channelJoined.getGuild().getIdLong();
+		
+		ResultSet set = DragonBot.INSTANCE.listenerDB.getData(sql_SELECT_VCHub);
 
 		try {
 			while(set.next()) {
@@ -59,7 +62,7 @@ public class VoiceListener extends ListenerAdapter{
 
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Utils.printError(e, null);
 		}
 
 		if(isHubVC) {

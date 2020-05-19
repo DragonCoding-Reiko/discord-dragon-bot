@@ -1,15 +1,12 @@
 package de.dragonbot.music;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
-import de.dragonbot.DragonBot;
-import de.dragonbot.commands.random.SendAsEmbed;
+import de.dragonbot.manage.Utils;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -64,7 +61,7 @@ public class Queue {
 
 	public void addTrackToQueueNew(AudioTrack track) {
 		this.queueList.add(track);
-
+		
 		if(controller.getPlayer().getPlayingTrack() == null) {
 			playNext();
 		}
@@ -89,28 +86,22 @@ public class Queue {
 			if(!this.isLoop && !this.isSingleLoop) {
 				track = this.queueList.remove(0);
 				addTrackToLast0(track);
-				//Normal Loop active
+			//Normal Loop active
 			} else if(this.isLoop && !this.isSingleLoop) {
 				track = this.queueList.remove(0);
 				addTrackToLast0(track);
 				addTrackToQueue(track);
-				//Single Loop active
+			//Single Loop active
 			} else if(this.isSingleLoop) {
 				track = this.lastSongs.remove(0);
 				addTrackToLast0(track);
 			}
 			this.controller.getPlayer().playTrack(track);
-
-			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID", "Dashboard",
-					"guild_ID = " + guild.getIdLong());
 			
-			try {
-				if(set.next()) {
-					TextChannel channel = guild.getTextChannelById(set.getLong("channel_ID"));
-
-					MusicDashboard.updateQueue(channel, controller, controller.getPlayer());
-				}
-			} catch (SQLException e) { e.printStackTrace(); }
+			TextChannel dashboard = Utils.getDashboardChannel(guild);
+			if(dashboard != null) {
+				MusicDashboard.updateQueue(dashboard, controller, controller.getPlayer());
+			}
 		}
 	}
 
@@ -133,16 +124,10 @@ public class Queue {
 			}
 			this.controller.getPlayer().playTrack(track);
 
-			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID", "Dashboard",
-					"guild_ID = " + guild.getIdLong());
-			
-			try {
-				if(set.next()) {
-					TextChannel channel = guild.getTextChannelById(set.getLong("channel_ID"));
-
-					MusicDashboard.updateQueue(channel, controller, controller.getPlayer());
-				}
-			} catch (SQLException e) { e.printStackTrace(); }
+			TextChannel dashboard = Utils.getDashboardChannel(guild);
+			if(dashboard != null) {
+				MusicDashboard.updateQueue(dashboard, controller, controller.getPlayer());
+			}
 		}
 	}
 
@@ -160,16 +145,10 @@ public class Queue {
 				}
 			}
 
-			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("channel_ID", "Dashboard",
-					"guild_ID = " + guild.getIdLong());
-			
-			try {
-				if(set.next()) {
-					TextChannel channel = guild.getTextChannelById(set.getLong("channel_ID"));
-
-					MusicDashboard.updateQueue(channel, controller, controller.getPlayer());
-				}
-			} catch (SQLException e) { e.printStackTrace(); }
+			TextChannel dashboard = Utils.getDashboardChannel(guild);
+			if(dashboard != null) {
+				MusicDashboard.updateQueue(dashboard, controller, controller.getPlayer());
+			}
 		}
 	}
 
@@ -185,8 +164,7 @@ public class Queue {
 			this.isLoop = true;
 		}
 		if(this.isSingleLoop) {
-			SendAsEmbed.sendEmbed(channel, "Der Befehl hat eine Wirkung, da ein Single Loop aktiviert ist. \n" 
-					+ "Benutze `#d loop single` um den Single Loop zu deaktivieren.");
+			Utils.sendEmbed("INFO", "Der Befehl hat keine Wirkung, da ein Single Loop aktiviert ist. \n" + "Benutze `#d loop single` um den Single Loop zu deaktivieren.", channel, 10l, null);
 		}
 	}
 
@@ -212,16 +190,37 @@ public class Queue {
 
 		return index;
 	}
+	
+	public void removeCurrentFromQueue(AudioTrack removeTrack) {
+		int index = 0;
+		String title = removeTrack.getInfo().title;
+
+		for(AudioTrack track : this.queueList) {
+			String queueTitle = track.getInfo().title;
+			if(queueTitle.equals(title)) {
+				index = this.queueList.indexOf(track);
+				break;
+			}
+		}
+		this.queueList.remove(index);
+		
+	}
+	
 
 	public void deleteTrackFromQueue(int index) {
 		this.queueList.remove(index);
 	}
 
 	public void onStop() {
-		this.queueList.clear();
-		this.lastSongs.clear();
+		if(this.queueList != null) this.queueList.clear();
+		if(this.lastSongs != null) this.lastSongs.clear();
 		this.isLoop = false;
 		this.isSingleLoop = false;
+	}
+	
+	public void onPlaylist() {
+		if(this.queueList != null) this.queueList.clear();
+		if(this.lastSongs != null) this.lastSongs.clear();
 	}
 
 	//Controller Getter and Setter

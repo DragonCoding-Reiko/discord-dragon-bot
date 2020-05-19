@@ -1,13 +1,13 @@
 package de.dragonbot.commands.music;
 
-import java.util.concurrent.TimeUnit;
+import java.awt.Color;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.ServerCommand;
-import de.dragonbot.commands.random.SendAsEmbed;
+import de.dragonbot.manage.Utils;
 import de.dragonbot.music.MusicController;
 import de.dragonbot.music.Queue;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -30,7 +30,7 @@ public class SkipSong implements ServerCommand{
 				int skips = Integer.parseInt(args[1]);
 				skip(channel, skips);
 			} catch (NumberFormatException e){ 
-				channel.sendMessage("Bitte nutze `#d skip` oder `#d skip <Zahl>`.").complete().delete().queueAfter(10, TimeUnit.SECONDS);
+				Utils.sendEmbed("ERROR", "Falsche Syntax! \n" + "Bitte nutze `#d skip` oder `#d skip <Zahl>`.", channel, 3l, new Color(0xff0000));
 			}
 
 		} else {
@@ -72,11 +72,11 @@ public class SkipSong implements ServerCommand{
 			queue.skip(skips);
 
 			if(!singleLoop) {
-				channel.sendMessage(builder.build()).complete().delete().queueAfter(15, TimeUnit.SECONDS);
+				Utils.sendEmbed(builder, channel, 15, null);
 			}
 		}
 		else {
-			SendAsEmbed.sendEmbed(channel, "Keine Lieder in der Queue. -> Skippen nicht möglich!");
+			Utils.sendEmbed("ERROR", "Keine Lieder in der Queue. -> Skippen nicht möglich!", channel, 3l, new Color(0xff0000));
 		}
 	}
 

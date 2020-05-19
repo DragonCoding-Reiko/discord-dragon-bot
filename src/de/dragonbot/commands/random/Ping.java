@@ -1,6 +1,7 @@
 package de.dragonbot.commands.random;
 
 import de.dragonbot.commands.ServerCommand;
+import de.dragonbot.manage.Utils;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -14,8 +15,8 @@ public class Ping implements ServerCommand{
 		long gatewayping = channel.getJDA().getGatewayPing();
 
 		channel.getJDA().getRestPing().queue( (time) ->
-		channel.sendMessageFormat("Pong! %dm", time, gatewayping).queue()
-				);
+			Utils.sendEmbed("PONG!", "" + time + gatewayping, channel, 0l, null)
+		);
 	}
 
 }

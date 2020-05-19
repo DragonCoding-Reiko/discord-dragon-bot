@@ -3,9 +3,9 @@ package de.dragonbot.commands.mod.normal;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import de.dragonbot.commands.ServerCommand;
+import de.dragonbot.manage.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -53,7 +53,7 @@ public class UserInfo implements ServerCommand {
 
 		builder.setDescription(strBuilder);
 
-		channel.sendMessage(builder.build()).complete().delete().queueAfter(20, TimeUnit.SECONDS);
+		Utils.sendEmbed(builder, channel, 20, null);
 
 	}
 

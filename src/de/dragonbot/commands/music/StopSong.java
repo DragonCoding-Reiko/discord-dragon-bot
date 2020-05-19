@@ -4,8 +4,8 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.ServerCommand;
+import de.dragonbot.manage.Utils;
 import de.dragonbot.music.MusicController;
-import de.dragonbot.music.MusicUtil;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -17,8 +17,6 @@ public class StopSong implements ServerCommand{
 
 	@Override
 	public void performCommand(Member m, TextChannel channel, Message message, int subString) {
-		message.delete().queue();
-
 		GuildVoiceState state;
 		if((state = m.getVoiceState()) != null) {
 			VoiceChannel vc;
@@ -27,7 +25,7 @@ public class StopSong implements ServerCommand{
 				AudioManager manager = vc.getGuild().getAudioManager();
 				AudioPlayer player = controller.getPlayer();
 
-				MusicUtil.updateChannel(channel);
+				Utils.setMusicChannel(channel);
 
 				controller.getQueue().onStop();
 

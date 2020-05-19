@@ -6,6 +6,7 @@ import java.util.EnumSet;
 
 import de.dragonbot.DragonBot;
 import de.dragonbot.commands.ServerCommand;
+import de.dragonbot.manage.Utils;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Guild;
@@ -43,7 +44,9 @@ public class VCHub implements ServerCommand{
 
 			try {
 				cat = guild.getCategoriesByName("VoiceHub", true).get(0);
-			} catch (IndexOutOfBoundsException e) {};
+			} catch (IndexOutOfBoundsException e) {
+				Utils.printError(e, null);
+			};
 
 			if(cat == null) {
 				cat = guild.createCategory("VoiceHub").complete();
@@ -51,25 +54,33 @@ public class VCHub implements ServerCommand{
 			}
 			vc.getManager().setParent(cat).complete();
 
-			DragonBot.INSTANCE.mainDB.newEntry("Voice_Channel_Hubs", 
-					"guild_ID, category_ID, channel_ID", 
-					guild.getIdLong() + ", " + cat.getIdLong() + ", " + vc.getIdLong());
+			String sql_INSERT_NewVCHub = "INSERT INTO `Voice_Channel_Hubs`(`guild_ID`, `category_ID`, `channel_ID`) "
+									   + "VALUES (" + guild.getIdLong() + ", " + cat.getIdLong() + ", " + vc.getIdLong() + ")";
+			
+			DragonBot.INSTANCE.mainDB.execute(sql_INSERT_NewVCHub);
 		}
 		//Delete a VC Hub
 		else if(args[1].equalsIgnoreCase("delete")) {
 
 			VoiceChannel vc = guild.getVoiceChannelsByName(args[2], true).get(0);
 
-			ResultSet set = DragonBot.INSTANCE.mainDB.getEntrys("category_ID, channel_ID", 
-					"Voice_Channel_Hubs", 
-					"guild_ID = " + guild.getIdLong() + " AND channel_ID = " + vc.getIdLong());
+			String sql_SELECT_VCHub = "SELECT `ID` "
+									+ "FROM `Voice_Channel_Hubs` "
+									+ "WHERE guild_ID = " + guild.getIdLong() + " AND channel_ID = " + vc.getIdLong();
+			
+			ResultSet set = DragonBot.INSTANCE.mainDB.getData(sql_SELECT_VCHub);
 
 			try {
 				while(set.next()) {
-					DragonBot.INSTANCE.mainDB.deleteEntry("Voice_Channel_Hubs", 
-							"guild_ID = " + guild.getIdLong() + " AND channel_ID = " + vc.getIdLong());
+					
+					String sql_REMOVE_VCHub = "DELETE FROM `Voice_Channel_Hubs` "
+											+ "WHERE guild_ID = " + guild.getIdLong() + " AND channel_ID = " + vc.getIdLong();
+					
+					DragonBot.INSTANCE.mainDB.execute(sql_REMOVE_VCHub);
 				}
-			} catch (SQLException e) { e.printStackTrace(); }
+			} catch (SQLException e) { 
+				Utils.printError(e, null);
+			}
 
 			vc.delete().complete();
 
@@ -78,7 +89,9 @@ public class VCHub implements ServerCommand{
 
 			try {
 				channels = cat.getChannels().size();
-			} catch (NullPointerException e) {}
+			} catch (NullPointerException e) { 
+				Utils.printError(e, null);
+			}
 
 			if(channels == 1) {
 				cat.delete().complete();

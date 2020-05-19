@@ -1,10 +1,11 @@
 package de.dragonbot.commands.mod.normal;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import de.dragonbot.commands.ServerCommand;
+import de.dragonbot.manage.Utils;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -17,7 +18,6 @@ public class Clear implements ServerCommand{
 	public void performCommand(Member m, TextChannel channel, Message message, int subString) {
 
 		if(m.hasPermission(channel, Permission.MESSAGE_MANAGE)) {
-			//message.delete().queue();
 			String[] args = message.getContentDisplay().substring(subString).split(" ");
 
 
@@ -27,19 +27,19 @@ public class Clear implements ServerCommand{
 
 					channel.purgeMessages(get(channel, amount));
 					if (amount == 1) {
-						channel.sendMessage("Es wurde "+ amount + " Nachricht gelöscht!").complete().delete().queueAfter(3, TimeUnit.SECONDS);
+						Utils.sendEmbed("Info", "Es wurde "+ amount + " Nachricht gelöscht!", channel, 3l, null);
 					} else {
-						channel.sendMessage("Es wurden "+ amount + " Nachrichten gelöscht!").complete().delete().queueAfter(3, TimeUnit.SECONDS);
+						Utils.sendEmbed("Info", "Es wurden "+ amount + " Nachrichten gelöscht!", channel, 3l, null);
 					}
 					return;
 
 				} catch (NumberFormatException e) {
-					e.printStackTrace();			
+					Utils.printError(e, null);			
 				}
 			}
 		}
 		else {
-			channel.sendMessage("Du hast nicht die benötigte Berechtigung! (Manage Messages)").complete().delete().queueAfter(3, TimeUnit.SECONDS);
+			Utils.sendEmbed("ERROR", "Du hast nicht die benötigte Berechtigung! (Manage Messages)", channel, 3l, new Color(0xff0000));
 		}
 	}
 
@@ -54,7 +54,6 @@ public class Clear implements ServerCommand{
 			}
 			if(--i <= 0) break;
 		}
-
 
 		return messages;
 	}

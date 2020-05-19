@@ -14,7 +14,6 @@ public class PlayerManager {
 
 	public MusicController getController(long guildid) {
 		MusicController mc = null;
-
 		if(this.controller.containsKey(guildid)) {
 			mc = this.controller.get(guildid);
 		}
